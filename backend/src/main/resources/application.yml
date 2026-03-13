@@ -50,7 +50,7 @@ ai:
   provider: claude
   claude:
     api-key: ${ANTHROPIC_API_KEY}
-    model: claude-sonnet-4-6
+    model: ${AI_MODEL:claude-haiku-4-5-20251001}
     max-tokens: 8192
 
 cors:
