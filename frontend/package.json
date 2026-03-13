@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "vue": "^3.4.0",
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",

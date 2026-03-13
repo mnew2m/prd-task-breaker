@@ -2,7 +2,10 @@
   <div class="analysis-result">
     <div class="result-header">
       <h2>분석 결과</h2>
-      <span class="result-id">ID: {{ result.id }}</span>
+      <div class="result-header-right">
+        <span class="result-id">ID: {{ result.id }}</span>
+        <PdfExportButton :result="result" />
+      </div>
     </div>
 
     <div class="sections-grid">
@@ -33,6 +36,7 @@ import DbDraft from './DbDraft.vue'
 import TestChecklist from './TestChecklist.vue'
 import ReleaseChecklist from './ReleaseChecklist.vue'
 import UncertainItems from './UncertainItems.vue'
+import PdfExportButton from './PdfExportButton.vue'
 
 defineProps<{ result: PrdAnalysisResponse }>()
 </script>
@@ -53,6 +57,12 @@ defineProps<{ result: PrdAnalysisResponse }>()
 .result-header h2 {
   font-size: 1.5rem;
   color: #1a1a2e;
+}
+
+.result-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .result-id {
