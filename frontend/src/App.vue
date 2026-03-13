@@ -9,27 +9,43 @@
     </header>
 
     <main class="app-main">
-      <PrdInput
-        :is-loading="isLoading"
-        @analyze="analyze"
-      />
+      <template v-if="!hasResult">
+        <PrdInput
+          :is-loading="isLoading"
+          @analyze="analyze"
+        />
+        <LoadingState v-if="isLoading" />
+        <ErrorState v-else-if="error" :message="error" @retry="reset" />
+        <AnalysisHistory
+          v-else
+          :recent-list="recentList"
+          @select="loadById"
+        />
+      </template>
 
-      <LoadingState v-if="isLoading" />
-      <ErrorState v-else-if="error" :message="error" @retry="reset" />
-      <AnalysisResult v-else-if="hasResult && result" :result="result" />
+      <template v-else-if="result">
+        <div class="result-toolbar">
+          <button class="btn-new" @click="reset">+ 새 분석</button>
+        </div>
+        <AnalysisResult :result="result" />
+      </template>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useAnalysis } from './composables/useAnalysis'
 import { Zap } from 'lucide-vue-next'
 import PrdInput from './components/PrdInput.vue'
 import AnalysisResult from './components/AnalysisResult.vue'
 import LoadingState from './components/LoadingState.vue'
 import ErrorState from './components/ErrorState.vue'
+import AnalysisHistory from './components/AnalysisHistory.vue'
 
-const { result, isLoading, error, hasResult, analyze, reset } = useAnalysis()
+const { result, isLoading, error, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
+
+onMounted(() => { loadRecent() })
 </script>
 
 <style>
@@ -103,5 +119,27 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.result-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.btn-new {
+  padding: 0.5rem 1.1rem;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-new:hover {
+  background: #4f46e5;
 }
 </style>

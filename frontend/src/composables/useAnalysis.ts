@@ -6,6 +6,7 @@ export function useAnalysis() {
   const result = ref<PrdAnalysisResponse | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const recentList = ref<PrdAnalysisResponse[]>([])
 
   const hasResult = computed(() => result.value !== null)
 
@@ -21,6 +22,7 @@ export function useAnalysis() {
 
     try {
       result.value = await analysisApi.analyze({ prdContent })
+      await loadRecent()
     } catch (e: unknown) {
       if (e && typeof e === 'object' && 'response' in e) {
         const axiosError = e as { response?: { data?: { message?: string } } }
@@ -33,11 +35,31 @@ export function useAnalysis() {
     }
   }
 
+  async function loadById(id: number) {
+    isLoading.value = true
+    error.value = null
+    try {
+      result.value = await analysisApi.getById(id)
+    } catch {
+      error.value = '분석 결과를 불러올 수 없습니다.'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function loadRecent() {
+    try {
+      recentList.value = await analysisApi.getRecent()
+    } catch {
+      // 목록 로딩 실패는 조용히 무시
+    }
+  }
+
   function reset() {
     result.value = null
     error.value = null
     isLoading.value = false
   }
 
-  return { result, isLoading, error, hasResult, analyze, reset }
+  return { result, isLoading, error, hasResult, recentList, analyze, loadById, loadRecent, reset }
 }
