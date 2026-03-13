@@ -53,21 +53,6 @@ describe('AnalysisHistory', () => {
     expect(wrapper.find('.history-toggle').text()).toContain('분석 히스토리')
   })
 
-  // ── badge ────────────────────────────────────────────────────────────────
-
-  it('shows badge with count when recentList is non-empty', () => {
-    const wrapper = mount(AnalysisHistory, {
-      props: { recentList: [makeItem(1), makeItem(2)] },
-    })
-    expect(wrapper.find('.badge').exists()).toBe(true)
-    expect(wrapper.find('.badge').text()).toBe('2')
-  })
-
-  it('does not show badge when recentList is empty', () => {
-    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
-    expect(wrapper.find('.badge').exists()).toBe(false)
-  })
-
   // ── empty state ───────────────────────────────────────────────────────────
 
   it('shows empty-state message when open and recentList is empty', async () => {
@@ -126,10 +111,11 @@ describe('AnalysisHistory', () => {
     expect(wrapper.find('.card-count').text()).toContain('5')
   })
 
-  it('displays non-empty date string in card', async () => {
-    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(1)] } })
+  it('displays date in YYYY-MM-DD HH:mm format', async () => {
+    const item = { ...makeItem(1), createdAt: '2026-03-13T10:05:00' }
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
     await openPanel(wrapper)
-    expect(wrapper.find('.card-date').text()).not.toBe('')
+    expect(wrapper.find('.card-date').text()).toBe('2026-03-13 10:05')
   })
 
   it('falls back to raw string for invalid date', async () => {

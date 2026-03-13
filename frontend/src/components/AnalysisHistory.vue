@@ -3,7 +3,6 @@
     <button class="history-toggle" @click="isOpen = !isOpen">
       <History :size="18" />
       <span>분석 히스토리</span>
-      <span v-if="recentList.length > 0" class="badge">{{ recentList.length }}</span>
       <ChevronDown :size="16" class="chevron" :class="{ open: isOpen }" />
     </button>
 
@@ -50,13 +49,8 @@ const displayList = computed(() => props.recentList.slice(0, 3))
 function formatDate(iso: string): string {
   const d = new Date(iso)
   if (isNaN(d.getTime())) return iso
-  return d.toLocaleString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 </script>
 
@@ -86,17 +80,6 @@ function formatDate(iso: string): string {
   border-color: #6366f1;
 }
 
-.badge {
-  margin-left: 0.1rem;
-  background: #6366f1;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 0.1rem 0.45rem;
-  line-height: 1.4;
-}
-
 .chevron {
   margin-left: auto;
   transition: transform 0.2s;
@@ -120,8 +103,8 @@ function formatDate(iso: string): string {
 }
 
 .history-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   list-style: none;
   padding: 0;
@@ -138,6 +121,7 @@ function formatDate(iso: string): string {
   border-radius: 8px;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 0;
 }
 
 .history-card:hover {
