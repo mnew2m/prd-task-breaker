@@ -17,9 +17,9 @@
           <MoreVertical :size="20" />
         </button>
         <div v-if="menuOpen" class="dropdown">
-          <a href="/prd-template.txt" download="PRD_템플릿.txt" class="dropdown-item" @click="menuOpen = false">
-            <Download :size="15" /> 템플릿 다운로드
-          </a>
+          <button class="dropdown-item" @click="copyTemplate">
+            <Copy :size="15" /> 템플릿 복사하기
+          </button>
           <button class="dropdown-item" @click="loadSample" :disabled="isLoading">
             <FileText :size="15" /> 샘플 불러오기
           </button>
@@ -50,11 +50,18 @@
       </button>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div class="toast" :class="{ show: copied }">
+      <Check :size="15" /> 템플릿이 복사되었습니다.
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { FileEdit, Download, FileText, Sparkles, MoreVertical } from 'lucide-vue-next'
+import { FileEdit, Download, FileText, Sparkles, MoreVertical, Copy, Check } from 'lucide-vue-next'
+
 
 defineProps<{
   isLoading: boolean
@@ -67,6 +74,60 @@ const emit = defineEmits<{
 const prdContent = ref('')
 const menuOpen = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
+const copied = ref(false)
+
+const TEMPLATE_TEXT = `# [프로젝트명] PRD
+
+## 1. 제품 개요
+[이 프로젝트가 무엇인지 1~2문장으로 설명]
+
+## 2. 목표
+- [핵심 목표 1]
+- [핵심 목표 2]
+- [핵심 목표 3]
+
+## 3. 대상 사용자
+- 주요: [누가 이 서비스를 쓰는가?]
+- 부수: [추가 사용자 그룹]
+
+## 4. 핵심 기능
+
+### 4.1 [기능명]
+- [세부 요구사항]
+- [세부 요구사항]
+- [기술적 참고사항이 있다면 기재]
+
+### 4.2 [기능명]
+- [세부 요구사항]
+- [세부 요구사항]
+
+### 4.3 [기능명]
+- [세부 요구사항]
+- [세부 요구사항]
+
+(필요한 만큼 기능 추가)
+
+## 5. 비기능 요구사항
+- 성능: [응답 시간, 동시 접속 등]
+- 보안: [인증 방식, 데이터 보호 등]
+- 배포: [배포 환경, CI/CD 등]
+
+## 6. 기술 스택 (선택)
+- Frontend: [프레임워크]
+- Backend: [프레임워크]
+- Database: [DB 종류]
+- 기타: [외부 API, 인프라 등]
+
+## 7. 제약사항 / 참고사항 (선택)
+- [일정, 예산, 기존 시스템 연동 등]
+- [불확실하거나 추후 결정할 사항]`
+
+async function copyTemplate() {
+  await navigator.clipboard.writeText(TEMPLATE_TEXT)
+  copied.value = true
+  menuOpen.value = false
+  setTimeout(() => { copied.value = false }, 2000)
+}
 
 const SAMPLE_PRD = `# 온라인 쇼핑몰 PRD
 
@@ -325,5 +386,31 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 .analyze-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ── 토스트 ── */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(1rem);
+  background: #1a1a2e;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 9999;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 </style>
