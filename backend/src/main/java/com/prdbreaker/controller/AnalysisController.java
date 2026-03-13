@@ -35,7 +35,7 @@ public class AnalysisController {
 
     @GetMapping("/analysis")
     public ResponseEntity<List<PrdAnalysisResponse>> getRecent(
-            @RequestParam(defaultValue = "20") int limit) {
+            @RequestParam(defaultValue = "3") int limit) {
         return ResponseEntity.ok(analysisService.getRecent(Math.min(limit, 100)));
     }
 

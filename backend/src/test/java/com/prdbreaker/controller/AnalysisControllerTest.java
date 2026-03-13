@@ -121,7 +121,7 @@ class AnalysisControllerTest {
     @Test
     void getRecent_returnsListWith200() throws Exception {
         List<PrdAnalysisResponse> list = List.of(buildResponse(2L), buildResponse(1L));
-        when(analysisService.getRecent(20)).thenReturn(list);
+        when(analysisService.getRecent(3)).thenReturn(list);
 
         mockMvc.perform(get("/api/v1/analysis"))
                 .andExpect(status().isOk())
