@@ -2,9 +2,12 @@
   <div class="prd-input-card">
     <div class="card-header">
       <h2>PRD 입력</h2>
-      <button class="sample-btn" @click="loadSample" :disabled="isLoading">
-        샘플 불러오기
-      </button>
+      <div class="header-actions">
+        <a href="/prd-template.txt" download="PRD_템플릿.txt" class="template-btn">템플릿 다운로드</a>
+        <button class="sample-btn" @click="loadSample" :disabled="isLoading">
+          샘플 불러오기
+        </button>
+      </div>
     </div>
 
     <textarea
@@ -108,15 +111,41 @@ function handleAnalyze() {
   color: #1a1a2e;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.template-btn,
 .sample-btn {
   padding: 0.4rem 0.8rem;
-  border: 1px solid #1a1a2e;
-  background: transparent;
-  color: #1a1a2e;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
+  line-height: 1.4;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
   transition: all 0.2s;
+}
+
+.template-btn {
+  border: 1px solid #6366f1;
+  background: transparent;
+  color: #6366f1;
+  text-decoration: none;
+}
+
+.template-btn:hover {
+  background: #6366f1;
+  color: white;
+}
+
+.sample-btn {
+  border: 1px solid #1a1a2e;
+  background: transparent;
+  color: #1a1a2e;
 }
 
 .sample-btn:hover:not(:disabled) {
