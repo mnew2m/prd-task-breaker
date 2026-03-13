@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">기능 목록 ({{ features.length }})</h3>
+    <h3 class="section-title"><LayoutList :size="18" /> 기능 목록 ({{ features.length }})</h3>
     <div v-if="features.length === 0" class="empty">기능 없음</div>
     <div v-else class="feature-list">
       <div v-for="(f, i) in features" :key="i" class="feature-item">
@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import type { FeatureDto } from '../types/analysis'
+import { LayoutList } from 'lucide-vue-next'
 
 defineProps<{ features: FeatureDto[] }>()
 

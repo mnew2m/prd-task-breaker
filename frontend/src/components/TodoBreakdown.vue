@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">TODO 항목 ({{ todos.length }})</h3>
+    <h3 class="section-title"><CheckSquare :size="18" /> TODO 항목 ({{ todos.length }})</h3>
     <div v-if="todos.length === 0" class="empty">TODO 없음</div>
     <div v-else class="todo-list">
       <div v-for="(t, i) in todos" :key="i" class="todo-item">
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import type { TodoItemDto } from '../types/analysis'
+import { CheckSquare } from 'lucide-vue-next'
 defineProps<{ todos: TodoItemDto[] }>()
 
 function priorityClass(p: string) {

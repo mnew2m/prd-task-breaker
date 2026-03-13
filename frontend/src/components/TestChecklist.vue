@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">테스트 체크리스트 ({{ items.length }})</h3>
+    <h3 class="section-title"><FlaskConical :size="18" /> 테스트 체크리스트 ({{ items.length }})</h3>
     <div v-if="items.length === 0" class="empty">항목 없음</div>
     <ul v-else class="checklist">
       <li v-for="(item, i) in items" :key="i" class="checklist-item">
@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import type { ChecklistItemDto } from '../types/analysis'
+import { FlaskConical } from 'lucide-vue-next'
 defineProps<{ items: ChecklistItemDto[] }>()
 </script>
 

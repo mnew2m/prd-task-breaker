@@ -1,7 +1,7 @@
 <template>
   <div class="analysis-result">
     <div class="result-header">
-      <h2>분석 결과</h2>
+      <h2><BrainCircuit :size="22" /> 분석 결과</h2>
       <div class="result-header-right">
         <span class="result-id">ID: {{ result.id }}</span>
         <PdfExportButton :result="result" />
@@ -20,7 +20,7 @@
     </div>
 
     <div v-if="result.readmeDraft" class="readme-section">
-      <h3>README 초안</h3>
+      <h3><FileText :size="18" /> README 초안</h3>
       <pre class="readme-content">{{ result.readmeDraft }}</pre>
     </div>
   </div>
@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import type { PrdAnalysisResponse } from '../types/analysis'
+import { BrainCircuit, FileText } from 'lucide-vue-next'
 import FeatureList from './FeatureList.vue'
 import UserStories from './UserStories.vue'
 import TodoBreakdown from './TodoBreakdown.vue'
@@ -57,6 +58,9 @@ defineProps<{ result: PrdAnalysisResponse }>()
 .result-header h2 {
   font-size: 1.5rem;
   color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .result-header-right {
@@ -86,6 +90,9 @@ defineProps<{ result: PrdAnalysisResponse }>()
 .readme-section h3 {
   margin-bottom: 1rem;
   color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .readme-content {

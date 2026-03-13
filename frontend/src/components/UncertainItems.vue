@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">불확실 항목 ({{ items.length }})</h3>
+    <h3 class="section-title"><HelpCircle :size="18" /> 불확실 항목 ({{ items.length }})</h3>
     <div v-if="items.length === 0" class="empty">불확실 항목 없음</div>
     <ul v-else class="uncertain-list">
       <li v-for="(item, i) in items" :key="i" class="uncertain-item">
@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import { HelpCircle } from 'lucide-vue-next'
 defineProps<{ items: string[] }>()
 </script>
 

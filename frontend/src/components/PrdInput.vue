@@ -1,11 +1,11 @@
 <template>
   <div class="prd-input-card">
     <div class="card-header">
-      <h2>PRD 입력</h2>
+      <h2><FileEdit :size="20" /> PRD 입력</h2>
       <div class="header-actions">
-        <a href="/prd-template.txt" download="PRD_템플릿.txt" class="template-btn">템플릿 다운로드</a>
+        <a href="/prd-template.txt" download="PRD_템플릿.txt" class="template-btn"><Download :size="14" /> 템플릿 다운로드</a>
         <button class="sample-btn" @click="loadSample" :disabled="isLoading">
-          샘플 불러오기
+          <FileText :size="14" /> 샘플 불러오기
         </button>
       </div>
     </div>
@@ -28,6 +28,7 @@
         @click="handleAnalyze"
         :disabled="isLoading || prdContent.length < 50"
       >
+        <Sparkles v-if="!isLoading" :size="16" />
         {{ isLoading ? '분석 중...' : 'AI 분석 시작' }}
       </button>
     </div>
@@ -36,6 +37,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { FileEdit, Download, FileText, Sparkles } from 'lucide-vue-next'
 
 defineProps<{
   isLoading: boolean
@@ -109,6 +111,9 @@ function handleAnalyze() {
 .card-header h2 {
   font-size: 1.25rem;
   color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .header-actions {

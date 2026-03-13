@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">DB 초안 ({{ dbDrafts.length }})</h3>
+    <h3 class="section-title"><Database :size="18" /> DB 초안 ({{ dbDrafts.length }})</h3>
     <div v-if="dbDrafts.length === 0" class="empty">DB 스키마 없음</div>
     <div v-else class="db-list">
       <div v-for="(d, i) in dbDrafts" :key="i" class="db-item">
@@ -18,6 +18,7 @@
 
 <script setup lang="ts">
 import type { DbDraftDto } from '../types/analysis'
+import { Database } from 'lucide-vue-next'
 defineProps<{ dbDrafts: DbDraftDto[] }>()
 </script>
 

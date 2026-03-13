@@ -3,11 +3,12 @@
     <div class="error-icon">⚠️</div>
     <h3>분석 중 오류가 발생했습니다</h3>
     <p>{{ message }}</p>
-    <button @click="emit('retry')">다시 시도</button>
+    <button @click="emit('retry')"><RefreshCw :size="14" /> 다시 시도</button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { RefreshCw } from 'lucide-vue-next'
 defineProps<{ message: string }>()
 const emit = defineEmits<{ retry: [] }>()
 </script>
@@ -44,6 +45,9 @@ button {
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 button:hover {

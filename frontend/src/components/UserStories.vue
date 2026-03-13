@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">유저 스토리 ({{ stories.length }})</h3>
+    <h3 class="section-title"><Users :size="18" /> 유저 스토리 ({{ stories.length }})</h3>
     <div v-if="stories.length === 0" class="empty">스토리 없음</div>
     <div v-else class="story-list">
       <div v-for="(s, i) in stories" :key="i" class="story-item">
@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import type { UserStoryDto } from '../types/analysis'
+import { Users } from 'lucide-vue-next'
 defineProps<{ stories: UserStoryDto[] }>()
 </script>
 

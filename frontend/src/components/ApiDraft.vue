@@ -1,6 +1,6 @@
 <template>
   <div class="section-card">
-    <h3 class="section-title">API 초안 ({{ apiDrafts.length }})</h3>
+    <h3 class="section-title"><Globe :size="18" /> API 초안 ({{ apiDrafts.length }})</h3>
     <div v-if="apiDrafts.length === 0" class="empty">API 없음</div>
     <div v-else class="api-list">
       <div v-for="(a, i) in apiDrafts" :key="i" class="api-item">
@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import type { ApiDraftDto } from '../types/analysis'
+import { Globe } from 'lucide-vue-next'
 defineProps<{ apiDrafts: ApiDraftDto[] }>()
 
 function methodClass(m: string) {

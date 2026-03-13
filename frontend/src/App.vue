@@ -1,7 +1,10 @@
 <template>
   <div class="app">
     <header class="app-header">
-      <h1>PRD Task Breaker</h1>
+      <div class="header-title">
+        <Zap :size="28" color="#6366f1" />
+        <h1>PRD Task Breaker</h1>
+      </div>
       <p class="subtitle">PRD를 입력하면 AI가 구조화된 개발 태스크를 생성합니다</p>
     </header>
 
@@ -20,6 +23,7 @@
 
 <script setup lang="ts">
 import { useAnalysis } from './composables/useAnalysis'
+import { Zap } from 'lucide-vue-next'
 import PrdInput from './components/PrdInput.vue'
 import AnalysisResult from './components/AnalysisResult.vue'
 import LoadingState from './components/LoadingState.vue'
@@ -55,9 +59,16 @@ body {
   text-align: center;
 }
 
+.header-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
 .app-header h1 {
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
 .subtitle {
@@ -71,5 +82,12 @@ body {
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
+}
+
+/* 섹션 타이틀 아이콘 정렬 */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 </style>
