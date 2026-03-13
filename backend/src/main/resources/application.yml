@@ -3,6 +3,9 @@ spring:
     active: dev
   application:
     name: prd-task-breaker
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
 ---
 spring:

@@ -22,80 +22,140 @@ const makeItem = (id: number, featureCount = 2): PrdAnalysisResponse => ({
   createdAt: '2026-03-13T10:00:00',
 })
 
+/** 패널을 열어주는 헬퍼 */
+async function openPanel(wrapper: ReturnType<typeof mount>) {
+  await wrapper.find('.history-toggle').trigger('click')
+}
+
 describe('AnalysisHistory', () => {
+  // ── toggle (collapse / expand) ────────────────────────────────────────────
+
+  it('starts collapsed: history-body is not rendered', () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    expect(wrapper.find('.history-body').exists()).toBe(false)
+  })
+
+  it('clicking toggle renders history-body', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.history-body').exists()).toBe(true)
+  })
+
+  it('clicking toggle a second time hides history-body again', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    await openPanel(wrapper)
+    await wrapper.find('.history-toggle').trigger('click')
+    expect(wrapper.find('.history-body').exists()).toBe(false)
+  })
+
+  it('toggle button renders title text', () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    expect(wrapper.find('.history-toggle').text()).toContain('분석 히스토리')
+  })
+
+  // ── badge ────────────────────────────────────────────────────────────────
+
+  it('shows badge with count when recentList is non-empty', () => {
+    const wrapper = mount(AnalysisHistory, {
+      props: { recentList: [makeItem(1), makeItem(2)] },
+    })
+    expect(wrapper.find('.badge').exists()).toBe(true)
+    expect(wrapper.find('.badge').text()).toBe('2')
+  })
+
+  it('does not show badge when recentList is empty', () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    expect(wrapper.find('.badge').exists()).toBe(false)
+  })
+
   // ── empty state ───────────────────────────────────────────────────────────
 
-  it('shows empty-state message when recentList is empty', () => {
+  it('shows empty-state message when open and recentList is empty', async () => {
     const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    await openPanel(wrapper)
     expect(wrapper.find('.empty-state').exists()).toBe(true)
     expect(wrapper.find('.empty-state').text()).toContain('아직 분석 기록이 없습니다')
   })
 
-  it('does not render history-list when recentList is empty', () => {
+  it('does not render history-list when open and recentList is empty', async () => {
     const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
+    await openPanel(wrapper)
     expect(wrapper.find('.history-list').exists()).toBe(false)
   })
 
   // ── list rendering ────────────────────────────────────────────────────────
 
-  it('does not show empty-state when recentList has items', () => {
+  it('does not show empty-state when open and recentList has items', async () => {
     const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(1)] } })
+    await openPanel(wrapper)
     expect(wrapper.find('.empty-state').exists()).toBe(false)
   })
 
-  it('renders one card per item', () => {
-    const wrapper = mount(AnalysisHistory, {
-      props: { recentList: [makeItem(1), makeItem(2), makeItem(3)] },
-    })
+  it('renders up to 3 cards even if recentList has more', async () => {
+    const list = [makeItem(1), makeItem(2), makeItem(3), makeItem(4), makeItem(5)]
+    const wrapper = mount(AnalysisHistory, { props: { recentList: list } })
+    await openPanel(wrapper)
     expect(wrapper.findAll('.history-card')).toHaveLength(3)
   })
 
-  it('displays item id in each card', () => {
+  it('renders exactly 3 cards when recentList has 3 items', async () => {
     const wrapper = mount(AnalysisHistory, {
-      props: { recentList: [makeItem(42)] },
+      props: { recentList: [makeItem(1), makeItem(2), makeItem(3)] },
     })
-    expect(wrapper.find('.card-id').text()).toContain('42')
+    await openPanel(wrapper)
+    expect(wrapper.findAll('.history-card')).toHaveLength(3)
   })
 
-  it('displays feature count in each card', () => {
-    const wrapper = mount(AnalysisHistory, {
-      props: { recentList: [makeItem(1, 5)] },
-    })
-    expect(wrapper.find('.card-count').text()).toContain('5')
-  })
-
-  it('displays formatted date in each card', () => {
+  it('renders fewer than 3 cards when recentList has fewer items', async () => {
     const wrapper = mount(AnalysisHistory, {
       props: { recentList: [makeItem(1)] },
     })
-    // date should not be empty
+    await openPanel(wrapper)
+    expect(wrapper.findAll('.history-card')).toHaveLength(1)
+  })
+
+  it('displays item id in card', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(42)] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-id').text()).toContain('42')
+  })
+
+  it('displays feature count in card', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(1, 5)] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-count').text()).toContain('5')
+  })
+
+  it('displays non-empty date string in card', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(1)] } })
+    await openPanel(wrapper)
     expect(wrapper.find('.card-date').text()).not.toBe('')
+  })
+
+  it('falls back to raw string for invalid date', async () => {
+    const item = { ...makeItem(1), createdAt: 'not-a-date' }
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-date').text()).toBe('not-a-date')
   })
 
   // ── select event ──────────────────────────────────────────────────────────
 
   it('emits select event with correct id when card is clicked', async () => {
-    const wrapper = mount(AnalysisHistory, {
-      props: { recentList: [makeItem(7)] },
-    })
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(7)] } })
+    await openPanel(wrapper)
     await wrapper.find('.history-card').trigger('click')
     expect(wrapper.emitted('select')).toBeTruthy()
     expect(wrapper.emitted('select')![0]).toEqual([7])
   })
 
-  it('emits select with the correct id for each card when multiple exist', async () => {
+  it('emits select with the correct id for the second card', async () => {
     const wrapper = mount(AnalysisHistory, {
       props: { recentList: [makeItem(10), makeItem(20)] },
     })
+    await openPanel(wrapper)
     const cards = wrapper.findAll('.history-card')
     await cards[1].trigger('click')
     expect(wrapper.emitted('select')![0]).toEqual([20])
-  })
-
-  // ── title ─────────────────────────────────────────────────────────────────
-
-  it('renders section title', () => {
-    const wrapper = mount(AnalysisHistory, { props: { recentList: [] } })
-    expect(wrapper.find('.history-title').text()).toContain('분석 히스토리')
   })
 })

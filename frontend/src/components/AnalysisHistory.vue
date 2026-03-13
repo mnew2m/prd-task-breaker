@@ -1,36 +1,41 @@
 <template>
   <div class="history-panel">
-    <h2 class="history-title">
-      <History :size="20" />
-      분석 히스토리
-    </h2>
+    <button class="history-toggle" @click="isOpen = !isOpen">
+      <History :size="18" />
+      <span>분석 히스토리</span>
+      <span v-if="recentList.length > 0" class="badge">{{ recentList.length }}</span>
+      <ChevronDown :size="16" class="chevron" :class="{ open: isOpen }" />
+    </button>
 
-    <p v-if="recentList.length === 0" class="empty-state">
-      아직 분석 기록이 없습니다
-    </p>
+    <div v-if="isOpen" class="history-body">
+      <p v-if="recentList.length === 0" class="empty-state">
+        아직 분석 기록이 없습니다
+      </p>
 
-    <ul v-else class="history-list">
-      <li
-        v-for="item in recentList"
-        :key="item.id"
-        class="history-card"
-        @click="$emit('select', item.id)"
-      >
-        <div class="card-id">#{{ item.id }}</div>
-        <div class="card-meta">
-          <span class="card-date">{{ formatDate(item.createdAt) }}</span>
-          <span class="card-count">기능 {{ item.features.length }}개</span>
-        </div>
-      </li>
-    </ul>
+      <ul v-else class="history-list">
+        <li
+          v-for="item in displayList"
+          :key="item.id"
+          class="history-card"
+          @click="$emit('select', item.id)"
+        >
+          <div class="card-id">#{{ item.id }}</div>
+          <div class="card-meta">
+            <span class="card-date">{{ formatDate(item.createdAt) }}</span>
+            <span class="card-count">기능 {{ item.features.length }}개</span>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { History } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { History, ChevronDown } from 'lucide-vue-next'
 import type { PrdAnalysisResponse } from '../types/analysis'
 
-defineProps<{
+const props = defineProps<{
   recentList: PrdAnalysisResponse[]
 }>()
 
@@ -38,8 +43,13 @@ defineEmits<{
   select: [id: number]
 }>()
 
+const isOpen = ref(false)
+
+const displayList = computed(() => props.recentList.slice(0, 3))
+
 function formatDate(iso: string): string {
   const d = new Date(iso)
+  if (isNaN(d.getTime())) return iso
   return d.toLocaleString('ko-KR', {
     year: 'numeric',
     month: '2-digit',
@@ -55,14 +65,49 @@ function formatDate(iso: string): string {
   margin-bottom: 1.5rem;
 }
 
-.history-title {
+.history-toggle {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 1rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #444;
-  margin-bottom: 0.75rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: border-color 0.15s;
+}
+
+.history-toggle:hover {
+  border-color: #6366f1;
+}
+
+.badge {
+  margin-left: 0.1rem;
+  background: #6366f1;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  line-height: 1.4;
+}
+
+.chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.history-body {
+  margin-top: 0.5rem;
 }
 
 .empty-state {
