@@ -29,4 +29,6 @@
 - `AnalysisResult`: 8개 섹션 렌더링
 
 ## CI
-GitHub Actions: push/PR마다 자동 실행
+GitHub Actions (`gradle/actions/setup-gradle@v3`): push/PR마다 자동 실행
+- Backend: `gradle test --no-daemon`
+- Frontend: `npm ci && npm run test:run`

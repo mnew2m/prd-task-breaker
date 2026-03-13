@@ -24,7 +24,7 @@ public class ClaudeAiClient implements AiClient {
     @Value("${ai.claude.api-key}")
     private String apiKey;
 
-    @Value("${ai.claude.model:claude-sonnet-4-6}")
+    @Value("${ai.claude.model:claude-haiku-4-5-20251001}")
     private String model;
 
     @Value("${ai.claude.max-tokens:8192}")

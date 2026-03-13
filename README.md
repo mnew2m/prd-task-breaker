@@ -23,9 +23,11 @@ docker compose up
 
 ### 백엔드
 ```bash
-cd backend
-./gradlew bootRun
-# http://localhost:8080
+# Docker 사용 (권장, Gradle Wrapper 불필요)
+docker compose up backend
+
+# 또는 시스템 Gradle 설치 후
+cd backend && gradle bootRun
 ```
 
 ### 프론트엔드
@@ -43,17 +45,20 @@ npm run dev
 | Frontend | Vue 3, TypeScript, Vite |
 | Backend | Spring Boot 3.2, Java 17, Gradle |
 | Database | H2 (dev), PostgreSQL (prod) |
-| AI | Anthropic Claude |
+| AI | Anthropic Claude (기본: claude-haiku-4-5-20251001) |
 | CI/CD | GitHub Actions |
+| Deploy | Vercel (frontend), Railway (backend) |
 
 ## 환경 변수 (운영 환경)
 
 ```bash
 SPRING_PROFILES_ACTIVE=prod
 ANTHROPIC_API_KEY=your-key-here
+AI_MODEL=claude-haiku-4-5-20251001  # 선택, 기본값으로도 동작
 DB_URL=jdbc:postgresql://host:5432/prdbreaker
 DB_USERNAME=username
 DB_PASSWORD=password
+CORS_ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app
 ```
 
 ## 결과물 (8개 섹션)
@@ -70,9 +75,6 @@ DB_PASSWORD=password
 ## 테스트
 
 ```bash
-# 백엔드
-cd backend && ./gradlew test
-
 # 프론트엔드
 cd frontend && npm run test:run
 ```
