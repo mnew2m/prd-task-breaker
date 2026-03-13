@@ -2,11 +2,28 @@
   <div class="prd-input-card">
     <div class="card-header">
       <h2><FileEdit :size="20" /> PRD 입력</h2>
-      <div class="header-actions">
+
+      <!-- 데스크탑: 버튼 직접 노출 -->
+      <div class="header-actions desktop-actions">
         <a href="/prd-template.txt" download="PRD_템플릿.txt" class="template-btn"><Download :size="14" /> 템플릿 다운로드</a>
         <button class="sample-btn" @click="loadSample" :disabled="isLoading">
           <FileText :size="14" /> 샘플 불러오기
         </button>
+      </div>
+
+      <!-- 모바일: 메뉴 버튼 + 드롭다운 -->
+      <div class="mobile-menu" ref="menuRef">
+        <button class="menu-btn" @click="toggleMenu" :class="{ active: menuOpen }">
+          <MoreVertical :size="20" />
+        </button>
+        <div v-if="menuOpen" class="dropdown">
+          <a href="/prd-template.txt" download="PRD_템플릿.txt" class="dropdown-item" @click="menuOpen = false">
+            <Download :size="15" /> 템플릿 다운로드
+          </a>
+          <button class="dropdown-item" @click="loadSample" :disabled="isLoading">
+            <FileText :size="15" /> 샘플 불러오기
+          </button>
+        </div>
       </div>
     </div>
 
@@ -36,8 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { FileEdit, Download, FileText, Sparkles } from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { FileEdit, Download, FileText, Sparkles, MoreVertical } from 'lucide-vue-next'
 
 defineProps<{
   isLoading: boolean
@@ -48,6 +65,8 @@ const emit = defineEmits<{
 }>()
 
 const prdContent = ref('')
+const menuOpen = ref(false)
+const menuRef = ref<HTMLElement | null>(null)
 
 const SAMPLE_PRD = `# 온라인 쇼핑몰 PRD
 
@@ -81,8 +100,13 @@ const SAMPLE_PRD = `# 온라인 쇼핑몰 PRD
 - 동시 접속자: 1,000명 이상 지원
 - 모바일 반응형 UI`
 
+function toggleMenu() {
+  menuOpen.value = !menuOpen.value
+}
+
 function loadSample() {
   prdContent.value = SAMPLE_PRD
+  menuOpen.value = false
 }
 
 function handleAnalyze() {
@@ -90,6 +114,15 @@ function handleAnalyze() {
     emit('analyze', prdContent.value)
   }
 }
+
+function handleClickOutside(e: MouseEvent) {
+  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
+    menuOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <style scoped>
@@ -116,6 +149,7 @@ function handleAnalyze() {
   gap: 0.4rem;
 }
 
+/* ── 데스크탑 버튼 ── */
 .header-actions {
   display: flex;
   gap: 0.5rem;
@@ -132,6 +166,7 @@ function handleAnalyze() {
   height: 2rem;
   display: inline-flex;
   align-items: center;
+  gap: 0.3rem;
   transition: all 0.2s;
 }
 
@@ -158,6 +193,79 @@ function handleAnalyze() {
   color: white;
 }
 
+/* ── 모바일 메뉴 ── */
+.mobile-menu {
+  display: none;
+  position: relative;
+}
+
+.menu-btn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a2e;
+  transition: all 0.2s;
+}
+
+.menu-btn:hover,
+.menu-btn.active {
+  background: #f0f0f5;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+  box-sizing: border-box;
+}
+
+.dropdown-item:hover:not(:disabled) {
+  background: #f5f5fa;
+}
+
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid #f5f5f5;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 600px) {
+  .desktop-actions {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+}
+
+/* ── 텍스트 영역 ── */
 .prd-textarea {
   width: 100%;
   border: 1px solid #ddd;
@@ -167,6 +275,7 @@ function handleAnalyze() {
   resize: vertical;
   font-family: inherit;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 .prd-textarea:focus {
@@ -174,16 +283,19 @@ function handleAnalyze() {
   border-color: #1a1a2e;
 }
 
+/* ── 하단 푸터 ── */
 .input-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 0.75rem;
+  gap: 0.5rem;
 }
 
 .char-count {
   font-size: 0.875rem;
   color: #888;
+  flex-shrink: 0;
 }
 
 .char-count.too-short {
@@ -199,7 +311,11 @@ function handleAnalyze() {
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .analyze-btn:hover:not(:disabled) {

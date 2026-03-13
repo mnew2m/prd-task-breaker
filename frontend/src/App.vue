@@ -76,6 +76,20 @@ body {
   font-size: 1rem;
 }
 
+@media (max-width: 600px) {
+  .app-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+  }
+}
+
 .app-main {
   flex: 1;
   max-width: 1200px;
