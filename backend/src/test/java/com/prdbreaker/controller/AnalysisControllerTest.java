@@ -156,6 +156,33 @@ class AnalysisControllerTest {
                 .andExpect(status().isOk());
     }
 
+    // ── createdAt 직렬화 형식 ──────────────────────────────────────────────
+
+    @Test
+    void postAnalysis_createdAt_serializedAsIsoString() throws Exception {
+        String validPrd = "이것은 충분히 긴 PRD 내용입니다. ".repeat(5);
+        PrdAnalysisResponse response = PrdAnalysisResponse.builder()
+                .id(1L)
+                .features(Collections.emptyList())
+                .userStories(Collections.emptyList())
+                .todos(Collections.emptyList())
+                .apiDrafts(Collections.emptyList())
+                .dbDrafts(Collections.emptyList())
+                .testChecklist(Collections.emptyList())
+                .releaseChecklist(Collections.emptyList())
+                .uncertainItems(Collections.emptyList())
+                .createdAt(LocalDateTime.of(2026, 3, 13, 10, 30, 0))
+                .build();
+        when(analysisService.analyze(anyString())).thenReturn(response);
+
+        mockMvc.perform(post("/api/v1/analysis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"prdContent\": \"" + validPrd + "\"}"))
+                .andExpect(status().isOk())
+                // 배열([2026,3,13,...])이 아닌 ISO 문자열 형태여야 함
+                .andExpect(jsonPath("$.createdAt").value("2026-03-13T10:30:00"));
+    }
+
     // ── GET /api/v1/health ────────────────────────────────────────────────
 
     @Test
