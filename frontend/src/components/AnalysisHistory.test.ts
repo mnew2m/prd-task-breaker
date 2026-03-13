@@ -125,6 +125,13 @@ describe('AnalysisHistory', () => {
     expect(wrapper.find('.card-date').text()).toBe('not-a-date')
   })
 
+  it('parses array-form createdAt (Jackson timestamp array) correctly', async () => {
+    const item = { ...makeItem(1), createdAt: [2026, 3, 13, 8, 6] as unknown as string }
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-date').text()).toBe('2026-03-13 08:06')
+  })
+
   // ── select event ──────────────────────────────────────────────────────────
 
   it('emits select event with correct id when card is clicked', async () => {

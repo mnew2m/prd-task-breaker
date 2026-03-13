@@ -19,7 +19,7 @@ export const analysisApi = {
     return apiClient.get<PrdAnalysisResponse>(`/analysis/${id}`).then(r => r.data)
   },
 
-  getRecent(limit = 20): Promise<PrdAnalysisResponse[]> {
+  getRecent(limit = 3): Promise<PrdAnalysisResponse[]> {
     return apiClient.get<PrdAnalysisResponse[]>('/analysis', { params: { limit } }).then(r => r.data)
   }
 }

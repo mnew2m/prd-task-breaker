@@ -46,10 +46,16 @@ const isOpen = ref(false)
 
 const displayList = computed(() => props.recentList.slice(0, 3))
 
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return iso
+function formatDate(raw: string | number[]): string {
   const pad = (n: number) => String(n).padStart(2, '0')
+  if (Array.isArray(raw)) {
+    const [year, month, day, hour = 0, min = 0] = raw
+    const d = new Date(year, month - 1, day, hour, min)
+    if (isNaN(d.getTime())) return String(raw)
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  }
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return raw
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 </script>

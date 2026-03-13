@@ -56,5 +56,5 @@ export interface PrdAnalysisResponse {
   releaseChecklist: ChecklistItemDto[]
   uncertainItems: string[]
   readmeDraft: string | null
-  createdAt: string
+  createdAt: string | number[]
 }
