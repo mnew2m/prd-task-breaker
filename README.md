@@ -61,7 +61,7 @@ DB_PASSWORD=password
 CORS_ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app
 ```
 
-## 결과물 (8개 섹션)
+## 결과물 (9개 섹션)
 
 1. **기능 목록** - 우선순위별 기능 분류
 2. **유저 스토리** - 인수 기준 포함
@@ -71,10 +71,18 @@ CORS_ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app
 6. **테스트 체크리스트**
 7. **릴리즈 체크리스트**
 8. **불확실 항목** - 추가 논의 필요 사항
+9. **README 초안** - 프로젝트 README 마크다운
+
+## PDF 내보내기
+
+분석 결과를 PDF로 저장할 수 있습니다. 섹션별 선택 가능하며 한글 폰트(Noto Sans KR)를 지원합니다.
 
 ## 테스트
 
 ```bash
 # 프론트엔드
 cd frontend && npm run test:run
+
+# 백엔드 (Docker 또는 시스템 Gradle 필요)
+cd backend && gradle test --no-daemon
 ```

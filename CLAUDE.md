@@ -43,9 +43,17 @@ cd frontend && npm install && npm run dev
 - `GET /api/v1/analysis` - 최근 분석 목록
 - `GET /api/v1/health` - 헬스체크
 
+## Features
+- AI 분석 결과 9개 섹션 (기능 목록, 유저 스토리, TODO, API 초안, DB 초안, 테스트 체크리스트, 릴리즈 체크리스트, 불확실 항목, README 초안)
+- PDF 내보내기: jsPDF + jspdf-autotable, 한글 폰트(`@expo-google-fonts/noto-sans-kr`) Vite asset import
+
 ## Testing
 ```bash
+# Frontend
 cd frontend && npm run test:run
+
+# Backend (Docker 또는 시스템 Gradle 필요)
+cd backend && gradle test --no-daemon
 ```
 
 ## Out of Scope (MVP)
