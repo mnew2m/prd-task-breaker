@@ -4,18 +4,22 @@ PRD(Product Requirements Document)를 입력하면 AI가 구조화된 개발 태
 
 ## 빠른 시작
 
+> **사전 요구사항**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) 설치 필요
+
 ```bash
-docker-compose up
+docker compose up
 ```
 
 브라우저에서 http://localhost:5173 접속
+
+> `docker-compose` (하이픈)는 구버전 명령어입니다. Docker Desktop v2 이상은 `docker compose` (띄어쓰기)를 사용합니다.
 
 ## 개발 환경
 
 ### 사전 요구사항
 - Java 17+
 - Node.js 20+
-- Docker & Docker Compose
+- Docker Desktop v2+
 
 ### 백엔드
 ```bash
