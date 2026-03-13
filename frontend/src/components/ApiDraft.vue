@@ -41,7 +41,7 @@ function methodClass(m: string) {
 .section-title { font-size: 1.1rem; color: #1a1a2e; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #1a1a2e; }
 .empty { color: #999; font-style: italic; }
 .api-list { display: flex; flex-direction: column; gap: 0.75rem; }
-.api-item { padding: 0.75rem; background: #f8f8f8; border-radius: 8px; }
+.api-item { padding: 0.75rem; background: #f8f8f8; border-radius: 8px; overflow: hidden; }
 .api-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
 .method { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; }
 .method-get { background: #d1fae5; color: #059669; }
@@ -53,6 +53,15 @@ function methodClass(m: string) {
 .api-desc { font-size: 0.875rem; color: #555; margin-bottom: 0.25rem; }
 .body-section { font-size: 0.8rem; margin-top: 0.25rem; }
 .body-label { font-weight: 600; color: #666; margin-right: 0.25rem; }
+.body-section code {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  padding: 0.4rem 0.6rem;
+  margin-top: 0.25rem;
+}
 code { background: #e8e8e8; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.8rem; }
 .notes { font-size: 0.8rem; color: #888; margin-top: 0.25rem; }
 </style>
