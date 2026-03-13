@@ -61,13 +61,17 @@ export function usePdfExport() {
 
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
-      // Register Korean font if available
-      const fontBase64 = await loadNotoSansKR()
+      // Register Korean font if available (TTF only — WOFF/WOFF2 is rejected by loader)
       let fontFamily = 'helvetica'
-      if (fontBase64) {
-        doc.addFileToVFS('NotoSansKR-Regular.ttf', fontBase64)
-        doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal')
-        fontFamily = 'NotoSansKR'
+      try {
+        const fontBase64 = await loadNotoSansKR()
+        if (fontBase64) {
+          doc.addFileToVFS('NotoSansKR-Regular.ttf', fontBase64)
+          doc.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal')
+          fontFamily = 'NotoSansKR'
+        }
+      } catch (e) {
+        console.warn('한글 폰트 등록 실패, 기본 폰트로 대체합니다:', e)
       }
       doc.setFont(fontFamily)
 
