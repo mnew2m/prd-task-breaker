@@ -11,9 +11,9 @@
  *   3. 아래 EMBEDDED_FONT_BASE64 상수에 할당 후 loadNotoSansKR() 반환값으로 사용
  */
 
-// fontsource v4는 TTF 파일을 포함합니다
+// @expo-google-fonts/noto-sans-kr 패키지는 실제 TTF 파일을 제공합니다
 const FONT_CDN_URL =
-  'https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-kr@4/files/noto-sans-kr-korean-400-normal.ttf'
+  'https://cdn.jsdelivr.net/npm/@expo-google-fonts/noto-sans-kr/NotoSansKR_400Regular.ttf'
 
 let cachedFont: string | null = null
 let attempted = false
