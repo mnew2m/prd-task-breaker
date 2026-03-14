@@ -8,6 +8,9 @@
 - `AiResponseValidatorTest`: 스키마 검증 로직, 잘못된 JSON 예외
 - `PrdContentValidatorTest`: 최소 단어 수 미달, 단일 문자 반복(영문/한글), 정상 입력 통과
 
+### CORS Tests
+- `AnalysisControllerTest`: `corsPreflightPatch_returnsAllowed()` — PATCH preflight OPTIONS 요청 시 `Access-Control-Allow-Methods`에 PATCH 포함 검증
+
 ### Integration Tests
 - `AnalysisControllerTest`: MockMvc, 전체 플로우 검증
 - `PrdAnalysisRepositoryTest`: @DataJpaTest H2로 영속화 검증

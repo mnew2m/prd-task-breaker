@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -233,6 +234,18 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"useful\": true}"))
                 .andExpect(status().isNotFound());
+    }
+
+    // ── CORS preflight ────────────────────────────────────────────────────
+
+    @Test
+    void corsPreflightPatch_returnsAllowed() throws Exception {
+        mockMvc.perform(options("/api/v1/analysis/1/feedback")
+                        .header("Origin", "http://localhost:5173")
+                        .header("Access-Control-Request-Method", "PATCH")
+                        .header("Access-Control-Request-Headers", "Content-Type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Methods", containsString("PATCH")));
     }
 
     // ── GET /api/v1/health ────────────────────────────────────────────────

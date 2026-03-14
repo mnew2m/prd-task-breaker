@@ -268,6 +268,20 @@ Trivy(Aqua Security)로 교체:
 - `build.gradle`에서 OWASP 플러그인 제거, NVD_API_KEY secret 불필요
 - `trivy-action@master` 사용 (버전 고정 시 구버전 바이너리 다운로드 실패 이슈 회피)
 
+## 2026-03-15 - CORS PATCH 누락 버그 수정
+
+### 수행 내용 및 문제 해결 과정
+
+**CORS allowedMethods에 PATCH 누락 → 피드백 버튼 403**
+피드백 엔드포인트(`PATCH /api/v1/analysis/{id}/feedback`)를 추가할 때 `WebConfig.java`의 CORS `allowedMethods`에 `PATCH`를 추가하지 않아, 브라우저 preflight 요청이 403으로 거부됐다.
+
+기존 테스트(`AnalysisControllerTest`)는 MockMvc로 PATCH 엔드포인트 자체는 검증했지만, CORS preflight(`OPTIONS`)를 검증하지 않아 배포 전에 발견하지 못했다.
+
+- `WebConfig.java`: `allowedMethods`에 `PATCH` 추가
+- `AnalysisControllerTest`: `corsPreflightPatch_returnsAllowed()` 테스트 추가 — OPTIONS 요청으로 preflight 응답의 `Access-Control-Allow-Methods`에 PATCH 포함 여부 검증
+
+---
+
 ## 2026-03-14 - User Feedback Feature
 
 ### 수행 내용 및 문제 해결 과정
