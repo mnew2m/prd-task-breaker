@@ -237,6 +237,24 @@ PRD에 "누가 쓰는가"(페르소나)와 "성공을 어떻게 측정하는가"
 
 ---
 
+## 2026-03-14 - Market Context & Prompt Quality
+
+### 수행 내용 및 문제 해결 과정
+
+**PRD.md — 시장·경쟁 환경 섹션 추가 (섹션 3-2)**
+PRD에 "누구를 위한 제품인가"(페르소나)는 있었지만 "왜 지금 이 제품인가"(시장 맥락)와 "기존 대안 대비 무엇이 다른가"(경쟁 분석)가 없었다. 투자자·팀원·외부 기여자가 제품의 포지셔닝을 이해하지 못하는 상태였다.
+
+- **타겟 시장**: AI 개발 도구 시장이 Copilot·Cursor로 코드 작성 단계를 커버하는 반면 PRD → 태스크 분해라는 **계획 단계 자동화**는 공백임을 명시
+- **경쟁 분석표**: Jira(수동 입력), Linear(자동 분해 없음), Notion AI(구조 일관성 낮음), ChatGPT 직접 사용(이력 없음) 대비 차별점을 표로 정리
+
+**PromptTemplate.java — 품질 기준 명세 추가**
+기존 프롬프트는 출력 분량 제한(토큰 절약)에 집중했으나, 각 필드의 품질 기준이 없어 AI 응답의 실용성이 낮았다:
+- `priority` 기준 모호 → HIGH/MEDIUM/LOW 정의를 "MVP 필수/있으면 좋음/나중에"로 명시
+- `estimatedEffort` 자유 형식 → `"Xh"` 또는 `"Xd"` 단위만 허용
+- `acceptanceCriteria` 막연한 서술 → "테스트 가능한 구체적 조건"으로 명시 (예시 포함)
+- `uncertainItems` 단순 나열 → "~은/는 어떻게 처리하는가?" 질문 형식 강제
+- 섹션 간 일관성 지침 추가: features ↔ userStories ↔ todos, todos API 항목 ↔ apiDrafts
+
 ## 2026-03-14 - Toast Notification & UX Polish
 
 ### 수행 내용 및 문제 해결 과정
