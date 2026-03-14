@@ -237,6 +237,19 @@ PRD에 "누가 쓰는가"(페르소나)와 "성공을 어떻게 측정하는가"
 
 ---
 
+## 2026-03-14 - Backend Dependency Security Scanning
+
+### 수행 내용 및 문제 해결 과정
+
+**OWASP Dependency Check CI 추가**
+프론트엔드는 `npm audit --audit-level=high`로 CI에서 의존성 취약점을 차단하고 있었지만, 백엔드는 Dependabot 자동 PR에만 의존하고 있었다. Dependabot은 사후 알림 방식이라 취약한 버전이 배포되는 것을 즉시 막지 못한다.
+
+OWASP Dependency Check Gradle plugin(`org.owasp.dependencycheck 10.0.3`)을 추가하고, CI에 `backend-security` 잡을 신설했다:
+- **CVSS 9 이상(Critical)만 빌드 실패** (`failBuildOnCVSS = 9`): High는 경고 처리해 빌드 블로킹 최소화
+- **NVD 캐시 적용** (`~/.gradle/dependency-check-data`): 매 실행 시 NVD 데이터 전체 재다운로드를 방지해 CI 실행 시간 단축
+- **NVD_API_KEY secret**: 미설정 시 rate-limit 경고가 뜨지만 계속 진행 (`continue-on-error: true`). GitHub Secrets에 `NVD_API_KEY`를 설정하면 안정적으로 실행됨
+- **HTML 리포트 아티팩트**: `backend/build/reports/dependency-check-report.html`을 CI 아티팩트로 저장해 취약점 상세 내역 확인 가능
+
 ## 2026-03-14 - User Feedback Feature
 
 ### 수행 내용 및 문제 해결 과정
