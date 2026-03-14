@@ -83,4 +83,37 @@ class PrdAnalysisRepositoryTest {
         List<PrdAnalysis> results = repository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, 10));
         assertThat(results).isEmpty();
     }
+
+    @Test
+    void findByStatusOrderByCreatedAtDesc_returnsOnlyMatchingStatus() {
+        PrdAnalysis completed = PrdAnalysis.builder().prdInput("완료").status(AnalysisStatus.COMPLETED).build();
+        PrdAnalysis pending = PrdAnalysis.builder().prdInput("보류").status(AnalysisStatus.PENDING).build();
+        PrdAnalysis failed = PrdAnalysis.builder().prdInput("실패").status(AnalysisStatus.FAILED).build();
+        completed.complete("{\"features\":[]}");
+        repository.save(completed);
+        repository.save(pending);
+        repository.save(failed);
+
+        List<PrdAnalysis> results = repository.findByStatusOrderByCreatedAtDesc(
+                AnalysisStatus.COMPLETED, PageRequest.of(0, 10));
+
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getStatus()).isEqualTo(AnalysisStatus.COMPLETED);
+    }
+
+    @Test
+    void findByStatusOrderByCreatedAtDesc_paginationLimitsResults() {
+        for (int i = 0; i < 5; i++) {
+            PrdAnalysis e = PrdAnalysis.builder()
+                    .prdInput("PRD " + i)
+                    .status(AnalysisStatus.COMPLETED)
+                    .build();
+            repository.save(e);
+        }
+
+        List<PrdAnalysis> results = repository.findByStatusOrderByCreatedAtDesc(
+                AnalysisStatus.COMPLETED, PageRequest.of(0, 3));
+
+        assertThat(results).hasSize(3);
+    }
 }

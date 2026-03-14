@@ -24,7 +24,8 @@ public class AnalysisService {
     private final PrdAnalysisRepository repository;
     private final AiResponseMapper mapper;
 
-    @Transactional
+    // @Transactional intentionally omitted: each repository.save() commits independently,
+    // so a FAILED status persisted in the catch block is not rolled back when the exception propagates.
     public PrdAnalysisResponse analyze(String prdContent) {
         PrdAnalysis entity = PrdAnalysis.builder()
                 .prdInput(prdContent)
@@ -59,9 +60,8 @@ public class AnalysisService {
 
     @Transactional(readOnly = true)
     public List<PrdAnalysisResponse> getRecent(int limit) {
-        return repository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, limit))
+        return repository.findByStatusOrderByCreatedAtDesc(AnalysisStatus.COMPLETED, PageRequest.of(0, limit))
                 .stream()
-                .filter(e -> e.getStatus() == AnalysisStatus.COMPLETED && e.getResultJson() != null)
                 .map(mapper::toResponse)
                 .toList();
     }

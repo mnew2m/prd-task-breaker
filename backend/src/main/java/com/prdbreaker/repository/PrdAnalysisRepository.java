@@ -1,5 +1,6 @@
 package com.prdbreaker.repository;
 
+import com.prdbreaker.domain.AnalysisStatus;
 import com.prdbreaker.domain.PrdAnalysis;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,5 @@ import java.util.List;
 @Repository
 public interface PrdAnalysisRepository extends JpaRepository<PrdAnalysis, Long> {
     List<PrdAnalysis> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    List<PrdAnalysis> findByStatusOrderByCreatedAtDesc(AnalysisStatus status, Pageable pageable);
 }

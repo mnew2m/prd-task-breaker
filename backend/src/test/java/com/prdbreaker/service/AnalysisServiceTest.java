@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,6 +91,27 @@ class AnalysisServiceTest {
         verify(repository, times(2)).save(any());
     }
 
+    @Test
+    void analyze_aiFailure_savesFAILEDStatus() {
+        PrdAnalysis entity = PrdAnalysis.builder()
+                .prdInput(VALID_PRD)
+                .status(AnalysisStatus.PENDING)
+                .build();
+
+        // First save returns the entity; second save (FAILED) also returns it
+        when(repository.save(any())).thenReturn(entity);
+        when(aiClient.analyze(anyString())).thenThrow(new RuntimeException("AI down"));
+
+        assertThatThrownBy(() -> analysisService.analyze(VALID_PRD))
+                .isInstanceOf(AiProcessingException.class);
+
+        // Capture the entity passed to the second save to verify FAILED status
+        org.mockito.ArgumentCaptor<PrdAnalysis> captor = org.mockito.ArgumentCaptor.forClass(PrdAnalysis.class);
+        verify(repository, times(2)).save(captor.capture());
+        PrdAnalysis savedInCatch = captor.getAllValues().get(1);
+        assertThat(savedInCatch.getStatus()).isEqualTo(AnalysisStatus.FAILED);
+    }
+
     // ── getById ───────────────────────────────────────────────────────────────
 
     @Test
@@ -148,14 +170,10 @@ class AnalysisServiceTest {
     @Test
     void getRecent_returnsOnlyCompletedEntities() {
         PrdAnalysis completed = completedEntity();
-        PrdAnalysis pending = PrdAnalysis.builder()
-                .prdInput(VALID_PRD)
-                .status(AnalysisStatus.PENDING)
-                .build();
         PrdAnalysisResponse mappedResponse = PrdAnalysisResponse.builder().id(1L).build();
 
-        when(repository.findAllByOrderByCreatedAtDesc(any(Pageable.class)))
-                .thenReturn(List.of(completed, pending));
+        when(repository.findByStatusOrderByCreatedAtDesc(eq(AnalysisStatus.COMPLETED), any(Pageable.class)))
+                .thenReturn(List.of(completed));
         when(mapper.toResponse(completed)).thenReturn(mappedResponse);
 
         List<PrdAnalysisResponse> result = analysisService.getRecent(10);
@@ -167,7 +185,7 @@ class AnalysisServiceTest {
 
     @Test
     void getRecent_emptyRepository_returnsEmptyList() {
-        when(repository.findAllByOrderByCreatedAtDesc(any(Pageable.class)))
+        when(repository.findByStatusOrderByCreatedAtDesc(eq(AnalysisStatus.COMPLETED), any(Pageable.class)))
                 .thenReturn(Collections.emptyList());
 
         List<PrdAnalysisResponse> result = analysisService.getRecent(20);
@@ -178,11 +196,11 @@ class AnalysisServiceTest {
 
     @Test
     void getRecent_passesLimitToRepository() {
-        when(repository.findAllByOrderByCreatedAtDesc(any(Pageable.class)))
+        when(repository.findByStatusOrderByCreatedAtDesc(eq(AnalysisStatus.COMPLETED), any(Pageable.class)))
                 .thenReturn(Collections.emptyList());
 
         analysisService.getRecent(5);
 
-        verify(repository).findAllByOrderByCreatedAtDesc(PageRequest.of(0, 5));
+        verify(repository).findByStatusOrderByCreatedAtDesc(AnalysisStatus.COMPLETED, PageRequest.of(0, 5));
     }
 }
