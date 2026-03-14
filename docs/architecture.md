@@ -13,6 +13,88 @@ Backend (Spring Boot :8080)
     └── Repository → H2 (dev) / PostgreSQL (prod)
 ```
 
+## 프론트엔드 아키텍처
+
+### 컴포넌트 계층 구조
+
+```
+App.vue  (루트 — 전역 상태 소유, 화면 전환 조건부 렌더링)
+  ├── useAnalysis()          ← 핵심 composable: 모든 분석 관련 상태·액션
+  ├── useToast()             ← 토스트 알림 싱글턴 상태
+  │
+  ├── PrdInput.vue           ← PRD 텍스트 입력, 유효성 표시, 샘플 로드
+  ├── LoadingState.vue       ← 로딩 스피너 + 모드별 문구 (analyze / load)
+  ├── ErrorState.vue         ← 에러 메시지 + 재시도 버튼
+  ├── AnalysisResult.vue     ← 분석 결과 9개 섹션 렌더링
+  │     ├── FeatureList.vue
+  │     ├── UserStoryList.vue
+  │     ├── TodoList.vue
+  │     ├── ApiDraftList.vue
+  │     ├── DbDraftList.vue
+  │     ├── ChecklistSection.vue  (테스트·릴리즈 공용)
+  │     ├── UncertainItems.vue
+  │     ├── ReadmeDraft.vue       (클립보드 복사 버튼 포함)
+  │     ├── FeedbackSection.vue   (👍/👎, 제출 후 비활성화)
+  │     └── PdfExportButton.vue
+  │           └── SectionReorderModal.vue  ← 드래그&드롭(PC) / 터치(모바일)
+  ├── HistoryPanel.vue       ← 최근 분석 목록, 접기/펼치기
+  ├── ConfirmDialog.vue      ← 취소 확인 모달 (포커스 트랩)
+  ├── Toast.vue              ← 토스트 알림 렌더러 (TransitionGroup)
+  └── ScrollToTop.vue        ← 모바일 전용 스크롤 상단 버튼
+```
+
+### useAnalysis Composable
+
+`useAnalysis`는 분석 관련 전체 상태와 액션을 캡슐화하는 핵심 composable이다. `App.vue`에서 단 한 번 호출되며 자식 컴포넌트에는 props/emit으로 필요한 값만 전달한다.
+
+```
+상태 (ref)
+  result      : PrdAnalysisResponse | null  — 현재 표시 중인 분석 결과
+  isLoading   : boolean                     — 로딩 중 여부
+  loadingMode : 'analyze' | 'load' | null   — 로딩 문구 분기용
+  error       : string | null               — 에러 메시지
+  history     : PrdAnalysisResponse[]       — 최근 분석 목록
+
+액션
+  analyze(prdContent)   — POST /api/v1/analysis, AbortController로 중복 요청 취소
+  loadById(id)          — GET /api/v1/analysis/{id}
+  loadHistory()         — GET /api/v1/analysis
+  submitFeedback(id, useful) — PATCH /api/v1/analysis/{id}/feedback
+  reset()               — 전체 상태 초기화, PrdInput 화면으로 복귀
+```
+
+### 레이어 구조
+
+```
+App.vue / 컴포넌트
+    │  호출
+    ▼
+useAnalysis (composable)
+    │  호출
+    ▼
+analysisApi (api/analysis.ts)   ← Axios 인스턴스 + API 엔드포인트 함수
+    │  HTTP
+    ▼
+Backend REST API (:8080)
+```
+
+`analysisApi`는 Axios 인스턴스를 래핑한 순수 함수 모음이며 상태를 갖지 않는다. 상태는 모두 `useAnalysis` composable이 소유한다. 이 분리 덕분에 `useAnalysis`를 단위 테스트할 때 `analysisApi`만 mocking하면 된다.
+
+### 레이스 컨디션 방지
+
+```
+analyze() 호출
+  │
+  ├─ 기존 요청이 진행 중이면 → abortController.abort() 호출
+  │       ↳ Axios ERR_CANCELED 발생 → isCanceledError()로 감지 후 조용히 무시
+  │
+  └─ 새 AbortController 생성 → 새 요청 시작
+```
+
+분석 버튼을 빠르게 여러 번 클릭해도 가장 마지막 요청의 결과만 화면에 반영된다.
+
+---
+
 ## Key Design Decisions
 
 ### AI Adapter Pattern
