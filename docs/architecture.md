@@ -212,3 +212,38 @@ repository.save(PENDING)  ← 트랜잭션 1: 즉시 커밋
 ```
 
 `analyze()` 메서드에 `@Transactional`을 붙이면 세 번의 save가 하나의 트랜잭션에 묶인다. 이 경우 AI 처리 실패 시 FAILED 상태 저장도 롤백되어 PENDING 레코드만 남게 된다. 트랜잭션을 의도적으로 분리해 **실패 이력이 DB에 남도록** 설계했다.
+
+---
+
+## MVP 설계 트레이드오프 및 확장 방향
+
+현재 구조는 MVP 범위에 최적화되어 있다. 이 섹션은 의도적으로 단순화한 결정들과, 요구사항이 증가할 경우의 전환 방향을 기록한다.
+
+### 동기 REST → 비동기 처리
+
+| | 현재 (MVP) | 확장 시 |
+|---|---|---|
+| 방식 | 동기 POST, 최대 60s 대기 | 비동기: 요청 즉시 202 반환 + 폴링 또는 SSE |
+| 트리거 | 응답 시간 P95 > 30s 빈번 시, 또는 동시 요청 증가 시 |
+| 변경 범위 | `AnalysisService` → `@Async` + `CompletableFuture`, 프론트엔드 폴링 로직 추가 |
+
+PENDING 상태가 이미 DB에 저장되므로 비동기 전환 시 클라이언트가 `GET /analysis/{id}`로 완료 여부를 폴링하는 구조로 자연스럽게 연결된다.
+
+### resultJson TEXT → 정규화 테이블
+
+| | 현재 (MVP) | 확장 시 |
+|---|---|---|
+| 방식 | 전체 결과를 JSON 문자열 1개 컬럼에 저장 | 섹션별 테이블 분리 (`features`, `todos` 등) |
+| 트리거 | 섹션 단위 검색·필터링, 결과 편집 기능 추가 시 |
+| 변경 범위 | 엔티티 분리, Flyway 마이그레이션, `AiResponseMapper` 재작성 |
+
+### 단일 사용자 → 멀티사용자 (인증/인가)
+
+현재 인증이 없어 모든 분석 결과가 공유된다. 사용자별 히스토리 분리가 필요해지면:
+- `PrdAnalysis`에 `userId` 컬럼 추가
+- Spring Security + JWT 또는 OAuth2 도입
+- `getRecent()` 쿼리에 userId 필터 추가
+
+### AI 제공자 교체
+
+`AiClient` 인터페이스 덕분에 Claude 외 다른 모델(OpenAI, Gemini 등)로 교체 시 새 구현체 클래스 하나와 Spring Profile 설정 변경만으로 전환 가능하다. 기존 코드 수정 없음.
