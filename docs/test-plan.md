@@ -36,8 +36,43 @@
 - `App.test.ts`: scroll-to-top 버튼 표시/숨김/클릭
 - `SectionReorderModal.test.ts`: 드래그 순서 변경, 터치 드래그, 취소 시 초기화
 
+## E2E Tests (Playwright)
+
+`frontend/e2e/smoke.spec.ts` — Chromium, API mock 포함:
+1. 페이지 타이틀·헤더 렌더링 확인
+2. PRD 텍스트영역 표시 및 입력 동작
+3. 50자 미만 입력 시 분석 버튼 비활성화
+4. 50자 이상 입력 시 분석 버튼 활성화
+5. 샘플 PRD 불러오기 버튼 동작
+6. API mock + 분석 플로우 전체: POST 분석 → 결과 화면 전환 확인
+
+실행: `cd frontend && npm run test:e2e`
+CI: `frontend-e2e` 잡 (Chromium만), 결과는 `playwright-report/` 아티팩트로 저장
+
+## 성능 테스트 계획
+
+실행 환경: 스테이징 또는 로컬 (백엔드 구동 필요)
+
+| 시나리오 | 도구 | 목표 |
+|---------|------|------|
+| AI 분석 P95 응답시간 | k6 (`perf/load-test.js`) | 30초 이내 |
+| 동시 5명 분석 요청 | k6 VU=5 | 타임아웃·에러 없음 |
+| 페이지 초기 로드 (FCP) | Lighthouse CI | 2초 이내 |
+
+## 보안 테스트 항목
+
+| 항목 | 방법 | 자동화 여부 |
+|------|------|------------|
+| 프론트엔드 의존성 취약점 | `npm audit --audit-level=high` | CI 자동 |
+| 백엔드 의존성 취약점 | Dependabot PR | 주 1회 자동 |
+| 입력 검증 (단어수·반복문자) | `PrdContentValidatorTest` | CI 자동 |
+| 프롬프트 인젝션 방어 | system 프롬프트 역할 강화 + `<user_prd>` 태그 격리 | 코드 리뷰 |
+| OWASP Top 10 수동 점검 | OWASP ZAP (스테이징) | 릴리즈 전 수동 |
+
 ## CI
 GitHub Actions (`gradle/actions/setup-gradle@v3`, `gradle-version: 8.13`): push/PR마다 자동 실행
-- Backend: `gradle build --no-daemon` (빌드 + 테스트 통합)
-- Frontend: `npm ci` → `npm audit --audit-level=high` → `type-check` → `test:coverage` → `build`
+- `backend-test`: `gradle build --no-daemon` (빌드 + 테스트 + Jacoco 리포트)
+- `frontend-check`: `npm ci` → `npm audit --audit-level=high` → `type-check` → `test:coverage` → `build`
+- `frontend-e2e`: Playwright Chromium 스모크 테스트 6개
 - Dependabot: npm/gradle/github-actions 주 1회(월요일) 자동 의존성 업데이트 PR
+- 배포 파이프라인·롤백·모니터링 상세: `docs/deploy.md` 참조

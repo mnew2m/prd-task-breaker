@@ -237,6 +237,30 @@ PRD에 "누가 쓰는가"(페르소나)와 "성공을 어떻게 측정하는가"
 
 ---
 
+## 2026-03-14 - E2E Testing & Deployment Documentation
+
+### 수행 내용 및 문제 해결 과정
+
+**E2E 테스트 도입 (Playwright)**
+Vitest 기반 단위/컴포넌트 테스트만으로는 실제 브라우저에서 사용자 플로우가 정상 동작하는지 검증할 수 없었다. Playwright를 도입해 Chromium으로 스모크 테스트 6개를 작성했다.
+
+핵심 설계 선택: E2E 테스트에서 백엔드 없이도 전체 분석 플로우를 검증하기 위해 `page.route()`로 `/api/v1/analysis` POST를 인터셉트해 mock 응답을 반환하도록 구성했다. `webServer` 옵션으로 vite dev 서버를 테스트 시작 시 자동 구동하며, CI에서는 `VITE_DEV_SERVER_URL`이 없는 환경에서도 동작한다.
+
+테스트 작성 중 발생한 문제:
+- `getByRole('button', { name: /분석/ })`가 실제 버튼 텍스트 `'AI 분석 시작'`과 불일치 → 컴포넌트 소스 확인 후 수정
+- `getByText('로그인')`이 feature 카드와 todo 항목 두 곳에서 매칭 (strict mode 위반) → `{ exact: true }` 추가
+
+**CI에 E2E 잡 추가 (`frontend-e2e`)**
+기존 `frontend-check` 잡과 별도로 `frontend-e2e` 잡을 추가했다. Playwright 브라우저 바이너리 설치(`npx playwright install chromium --with-deps`)가 포함되어 CI 시간이 늘어나지만, 실제 브라우저 렌더링 검증 가치가 크다. 결과 리포트는 `playwright-report/` 아티팩트로 저장해 실패 시 스크린샷·트레이스 확인이 가능하다.
+
+**배포 가이드 문서화 (`docs/deploy.md`)**
+Vercel(프론트엔드) + Railway(백엔드) 배포 설정이 README/CLAUDE.md에 분산되어 있었고, 롤백 절차·모니터링 전략이 전혀 문서화되지 않았다.
+- Vercel/Railway 자동 배포 트리거 및 필수 환경변수 목록
+- 롤백: Vercel은 대시보드 "Promote to Production", Railway는 이전 배포 "Redeploy"
+- 모니터링: 현재(Railway 로그·Vercel Analytics·GitHub Actions 알림) + 권장(UptimeRobot·Sentry)
+- 성능 목표(AI 분석 P95 30초, FCP 2초) 및 k6 부하 테스트 시나리오
+- 보안 테스트 항목 표: 자동화(npm audit·Dependabot·단위 테스트)와 수동(OWASP ZAP·릴리즈 전 점검) 구분
+
 ## 2026-03-14 - Market Context & Prompt Quality
 
 ### 수행 내용 및 문제 해결 과정
