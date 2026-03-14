@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { useToast } from './useToast'
 import type { jsPDF } from 'jspdf'
 import type { PrdAnalysisResponse } from '../types/analysis'
 import { loadNotoSansKR } from '../assets/fonts/NotoSansKR-Regular-base64'
@@ -49,6 +50,7 @@ const PRIORITY_LABEL: Record<string, string> = {
 }
 
 export function usePdfExport() {
+  const { show: showToast } = useToast()
   const isGenerating = ref(false)
 
   async function generatePdf(
@@ -275,6 +277,7 @@ export function usePdfExport() {
       // Save
       const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
       doc.save(`PRD분석결과_${result.id}_${date}.pdf`)
+      showToast('PDF가 저장되었습니다')
     } finally {
       isGenerating.value = false
     }

@@ -11,6 +11,8 @@
       </div>
     </div>
 
+    <p class="result-notice">AI가 PRD에서 핵심 항목을 추출했습니다. PRD가 복잡한 경우 중요도 높은 항목 위주로 요약될 수 있습니다.</p>
+
     <div class="sections-grid">
       <component
         v-for="key in sectionOrder"
@@ -21,7 +23,12 @@
     </div>
 
     <div v-if="result.readmeDraft" class="readme-section">
-      <h3><FileText :size="18" /> README 초안</h3>
+      <div class="readme-header">
+        <h3><FileText :size="18" /> README 초안</h3>
+        <button class="copy-btn" @click="copyReadme" aria-label="README 초안 복사">
+          <Copy :size="14" /> 복사
+        </button>
+      </div>
       <pre class="readme-content">{{ result.readmeDraft }}</pre>
     </div>
 
@@ -37,7 +44,8 @@
 <script setup lang="ts">
 import { ref, type Component } from 'vue'
 import type { PrdAnalysisResponse } from '../types/analysis'
-import { BrainCircuit, FileText, GripVertical } from 'lucide-vue-next'
+import { BrainCircuit, Copy, FileText, GripVertical } from 'lucide-vue-next'
+import { useToast } from '../composables/useToast'
 import FeatureList from './FeatureList.vue'
 import UserStories from './UserStories.vue'
 import TodoBreakdown from './TodoBreakdown.vue'
@@ -80,11 +88,19 @@ function getSectionProps(key: GridSectionKey): Record<string, unknown> {
   }
 }
 
+const { show: showToast } = useToast()
+
 const sectionOrder = ref<GridSectionKey[]>([...DEFAULT_ORDER])
 const isReorderOpen = ref(false)
 
 function onApplyOrder(newOrder: GridSectionKey[]) {
   sectionOrder.value = newOrder
+}
+
+async function copyReadme() {
+  if (!props.result.readmeDraft) return
+  await navigator.clipboard.writeText(props.result.readmeDraft)
+  showToast('클립보드에 복사되었습니다')
 }
 </script>
 
@@ -147,6 +163,43 @@ function onApplyOrder(newOrder: GridSectionKey[]) {
   gap: 1.5rem;
 }
 
+.result-notice {
+  font-size: 0.78rem;
+  color: #aaa;
+  margin-top: -0.5rem;
+}
+
+.readme-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.readme-header h3 {
+  margin-bottom: 0;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
 .readme-section {
   background: white;
   border-radius: 12px;
@@ -155,7 +208,6 @@ function onApplyOrder(newOrder: GridSectionKey[]) {
 }
 
 .readme-section h3 {
-  margin-bottom: 1rem;
   color: #1a1a2e;
   display: flex;
   align-items: center;

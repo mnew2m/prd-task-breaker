@@ -1,9 +1,11 @@
 import { ref, computed } from 'vue'
 import { analysisApi } from '../api/analysisApi'
 import { isCanceledError, extractApiErrorMessage } from '../utils/errors'
+import { useToast } from './useToast'
 import type { PrdAnalysisResponse } from '../types/analysis'
 
 export function useAnalysis() {
+  const { show: showToast } = useToast()
   const result = ref<PrdAnalysisResponse | null>(null)
   const isLoading = ref(false)
   const loadingMode = ref<'analyze' | 'load' | null>(null)
@@ -31,6 +33,7 @@ export function useAnalysis() {
     try {
       result.value = await analysisApi.analyze({ prdContent }, abortController.value.signal)
       await loadRecent()
+      showToast('분석이 완료되었습니다')
     } catch (e: unknown) {
       if (isCanceledError(e)) return  // 사용자 취소 — 정상 흐름, 에러 표시 없음
       error.value = extractApiErrorMessage(e) ?? '서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'

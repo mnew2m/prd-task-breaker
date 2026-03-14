@@ -13,9 +13,9 @@ public class PromptTemplate {
                 [중요: 토큰 절약 규칙]
                 - description, notes는 한 문장(30자 이내)으로 작성
                 - acceptanceCriteria는 항목당 최대 3개
-                - features 최대 5개, userStories 최대 5개, todos 최대 10개
-                - apiDrafts 최대 8개, dbDrafts 최대 5개
-                - testChecklist/releaseChecklist 각 최대 5개
+                - features 최대 8개, userStories 최대 8개, todos 최대 15개
+                - apiDrafts 최대 10개, dbDrafts 최대 8개
+                - testChecklist/releaseChecklist 각 최대 8개
                 - readmeDraft는 5줄 이내로 간략히
                 - notes는 꼭 필요한 경우만 작성, 아니면 null
 

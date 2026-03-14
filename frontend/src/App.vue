@@ -15,6 +15,8 @@
       @click="scrollToTop"
     >↑</button>
 
+    <Toast />
+
     <main class="app-main">
       <template v-if="!hasResult">
         <PrdInput
@@ -48,6 +50,7 @@ import AnalysisResult from './components/AnalysisResult.vue'
 import LoadingState from './components/LoadingState.vue'
 import ErrorState from './components/ErrorState.vue'
 import AnalysisHistory from './components/AnalysisHistory.vue'
+import Toast from './components/Toast.vue'
 
 const { result, isLoading, loadingMode, error, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
 
