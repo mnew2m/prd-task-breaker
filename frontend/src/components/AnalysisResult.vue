@@ -4,31 +4,40 @@
       <h2><BrainCircuit :size="22" /> 분석 결과</h2>
       <div class="result-header-right">
         <span class="result-id">ID: {{ result.id }}</span>
+        <button class="reorder-btn" @click="isReorderOpen = true" aria-label="섹션 순서 변경">
+          <GripVertical :size="15" /> 순서변경
+        </button>
         <PdfExportButton :result="result" />
       </div>
     </div>
 
     <div class="sections-grid">
-      <FeatureList :features="result.features" />
-      <UserStories :stories="result.userStories" />
-      <TodoBreakdown :todos="result.todos" />
-      <ApiDraft :api-drafts="result.apiDrafts" />
-      <DbDraft :db-drafts="result.dbDrafts" />
-      <TestChecklist :items="result.testChecklist" />
-      <ReleaseChecklist :items="result.releaseChecklist" />
-      <UncertainItems :items="result.uncertainItems" />
+      <component
+        v-for="key in sectionOrder"
+        :key="key"
+        :is="SECTION_COMPONENTS[key]"
+        v-bind="getSectionProps(key)"
+      />
     </div>
 
     <div v-if="result.readmeDraft" class="readme-section">
       <h3><FileText :size="18" /> README 초안</h3>
       <pre class="readme-content">{{ result.readmeDraft }}</pre>
     </div>
+
+    <SectionReorderModal
+      :is-open="isReorderOpen"
+      :order="sectionOrder"
+      @close="isReorderOpen = false"
+      @apply="onApplyOrder"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, type Component } from 'vue'
 import type { PrdAnalysisResponse } from '../types/analysis'
-import { BrainCircuit, FileText } from 'lucide-vue-next'
+import { BrainCircuit, FileText, GripVertical } from 'lucide-vue-next'
 import FeatureList from './FeatureList.vue'
 import UserStories from './UserStories.vue'
 import TodoBreakdown from './TodoBreakdown.vue'
@@ -38,8 +47,45 @@ import TestChecklist from './TestChecklist.vue'
 import ReleaseChecklist from './ReleaseChecklist.vue'
 import UncertainItems from './UncertainItems.vue'
 import PdfExportButton from './PdfExportButton.vue'
+import SectionReorderModal from './SectionReorderModal.vue'
+import { type GridSectionKey, DEFAULT_SECTION_ORDER } from '../utils/sections'
 
-defineProps<{ result: PrdAnalysisResponse }>()
+const props = defineProps<{ result: PrdAnalysisResponse }>()
+
+const DEFAULT_ORDER: GridSectionKey[] = DEFAULT_SECTION_ORDER
+
+const SECTION_COMPONENTS: Record<GridSectionKey, Component> = {
+  features: FeatureList,
+  userStories: UserStories,
+  todos: TodoBreakdown,
+  apiDrafts: ApiDraft,
+  dbDrafts: DbDraft,
+  testChecklist: TestChecklist,
+  releaseChecklist: ReleaseChecklist,
+  uncertainItems: UncertainItems,
+}
+
+function getSectionProps(key: GridSectionKey): Record<string, unknown> {
+  const r = props.result
+  switch (key) {
+    case 'features':       return { features: r.features }
+    case 'userStories':    return { stories: r.userStories }
+    case 'todos':          return { todos: r.todos }
+    case 'apiDrafts':      return { apiDrafts: r.apiDrafts }
+    case 'dbDrafts':       return { dbDrafts: r.dbDrafts }
+    case 'testChecklist':  return { items: r.testChecklist }
+    case 'releaseChecklist': return { items: r.releaseChecklist }
+    case 'uncertainItems': return { items: r.uncertainItems }
+    default: return {}
+  }
+}
+
+const sectionOrder = ref<GridSectionKey[]>([...DEFAULT_ORDER])
+const isReorderOpen = ref(false)
+
+function onApplyOrder(newOrder: GridSectionKey[]) {
+  sectionOrder.value = newOrder
+}
 </script>
 
 <style scoped>
@@ -53,6 +99,8 @@ defineProps<{ result: PrdAnalysisResponse }>()
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .result-header h2 {
@@ -66,12 +114,31 @@ defineProps<{ result: PrdAnalysisResponse }>()
 .result-header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .result-id {
   font-size: 0.875rem;
   color: #999;
+}
+
+.reorder-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reorder-btn:hover {
+  border-color: #6366f1;
+  color: #6366f1;
 }
 
 .sections-grid {

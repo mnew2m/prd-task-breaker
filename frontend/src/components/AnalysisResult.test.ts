@@ -49,9 +49,38 @@ describe('AnalysisResult', () => {
     expect(html).toContain('uncertain-items-stub')
   })
 
-  it('passes correct props to child components', () => {
+  it('passes correct props to FeatureList', () => {
     const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
     const featureList = wrapper.findComponent({ name: 'FeatureList' })
     expect(featureList.props('features')).toEqual(mockResult.features)
+  })
+
+  it('renders 순서변경 button in header', () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    expect(wrapper.find('.reorder-btn').exists()).toBe(true)
+    expect(wrapper.find('.reorder-btn').text()).toContain('순서변경')
+  })
+
+  it('opens reorder modal when 순서변경 button is clicked', async () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    const modal = wrapper.findComponent({ name: 'SectionReorderModal' })
+    expect(modal.props('isOpen')).toBe(false)
+    await wrapper.find('.reorder-btn').trigger('click')
+    expect(modal.props('isOpen')).toBe(true)
+  })
+
+  it('applies new section order when reorder modal emits apply', async () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    const modal = wrapper.findComponent({ name: 'SectionReorderModal' })
+
+    const newOrder = [
+      'todos', 'features', 'userStories', 'apiDrafts',
+      'dbDrafts', 'testChecklist', 'releaseChecklist', 'uncertainItems',
+    ]
+    await modal.vm.$emit('apply', newOrder)
+
+    // 첫 번째 렌더링된 섹션 컴포넌트가 TodoBreakdown이어야 함
+    const firstSection = wrapper.find('.sections-grid').element.firstElementChild
+    expect(firstSection?.tagName.toLowerCase()).toContain('todo')
   })
 })
