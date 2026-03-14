@@ -296,6 +296,26 @@ Trivy(Aqua Security)로 교체:
 - `build.gradle`에서 OWASP 플러그인 제거, NVD_API_KEY secret 불필요
 - `trivy-action@master` 사용 (버전 고정 시 구버전 바이너리 다운로드 실패 이슈 회피)
 
+## 2026-03-15 - Code Quality: 컴포넌트 책임 분리 및 타입 안전성 개선
+
+> 관련 커밋: `55c372b`
+
+### 수행 내용 및 문제 해결 과정
+
+**FeedbackSection.vue 추출 (AnalysisResult.vue 책임 분리)**
+`AnalysisResult.vue`가 9개 섹션 렌더링 외에 피드백 상태 관리와 API 호출까지 담당하고 있었다. `feedbackValue`, `feedbackSubmitted`, `isFeedbackSubmitting`, `submitFeedback()`을 `FeedbackSection.vue`로 분리해 단일 책임을 부여했다. `AnalysisResult.vue`는 `<FeedbackSection :result="result" />`만 렌더링하면 되어 약 80줄 감소.
+
+**copyReadme 클립보드 에러 처리 추가**
+`navigator.clipboard.writeText()`가 권한 거부 등으로 실패해도 에러가 조용히 삼켜지는 문제가 있었다. try/catch를 추가하고 실패 시 에러 토스트를 표시하도록 수정했다.
+
+**errors.ts 타입 안전성 개선 (axios.isAxiosError 활용)**
+기존 `isCanceledError`, `extractApiErrorMessage`는 수동 타입 가드(`'code' in e`, `(e as {...}).code`)를 사용했다. `axios.isAxiosError()`로 교체하면 Axios 에러 타입이 자동으로 좁혀져 불필요한 타입 단언이 제거된다. 부수 효과로, plain object를 에러로 던지는 테스트 패턴이 더 이상 동작하지 않아 `useAnalysis.test.ts`와 `errors.test.ts`를 실제 `AxiosError` 인스턴스 기반으로 업데이트했다.
+
+**FeedbackSection.test.ts 신규 작성 (6개)**
+분리된 컴포넌트에 대한 독립 테스트 추가: 버튼 활성/비활성, prior feedback 상태 표시, API 호출 성공/실패 케이스.
+
+---
+
 ## 2026-03-15 - CORS PATCH 누락 버그 수정
 
 > 관련 커밋: `0f028fa`, `1bdd0a2`
