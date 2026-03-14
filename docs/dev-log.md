@@ -237,6 +237,20 @@ PRD에 "누가 쓰는가"(페르소나)와 "성공을 어떻게 측정하는가"
 
 ---
 
+## 2026-03-14 - User Feedback Feature
+
+### 수행 내용 및 문제 해결 과정
+
+**분석 결과 유용성 피드백 기능 추가 (👍/👎)**
+AI 분석 품질에 대한 사용자 피드백 수집 인프라가 없었다. 분석 결과 하단에 "이 분석이 유용했나요?" 버튼을 추가하고, 데이터를 DB에 저장해 향후 프롬프트 개선 근거로 활용할 수 있도록 했다.
+
+- **백엔드**: `PrdAnalysis` 엔티티에 `useful(Boolean)` 컬럼 추가 (nullable — 피드백 미제출 = null), Flyway V2 마이그레이션, `PATCH /api/v1/analysis/{id}/feedback` 엔드포인트 신설
+- **프론트엔드**: `AnalysisResult.vue` 하단에 피드백 섹션 추가. 이미 피드백이 있는 분석(히스토리에서 불러온 경우)은 선택 상태로 표시 + 버튼 비활성화. 제출 후 Toast 알림.
+- **타입 오류 수정**: `useful`을 required로 정의하면 기존 테스트 mock 데이터 전체 수정 필요. optional(`boolean | null | undefined`)로 변경해 하위 호환성 유지. type-check + build 까지 확인 후 커밋.
+
+**피드백 데이터 활용 계획**
+현재는 DB 저장만 하며 AI 결과에 즉시 반영되지 않는다. 👎가 누적된 패턴을 관리자가 분석해 `PromptTemplate`을 수동으로 개선하는 방식이 현실적인 활용 경로다. 자동 반영(RLHF 수준)은 MVP 범위 밖이다.
+
 ## 2026-03-14 - E2E Testing & Deployment Documentation
 
 ### 수행 내용 및 문제 해결 과정

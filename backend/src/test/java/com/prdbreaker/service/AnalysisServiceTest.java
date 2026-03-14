@@ -194,6 +194,57 @@ class AnalysisServiceTest {
         verifyNoInteractions(mapper);
     }
 
+    // ── submitFeedback ────────────────────────────────────────────────────────
+
+    @Test
+    void submitFeedback_completed_savesUsefulTrue() {
+        PrdAnalysis entity = completedEntity();
+        when(repository.findById(1L)).thenReturn(Optional.of(entity));
+        when(repository.save(any())).thenReturn(entity);
+        when(mapper.toResponse(any())).thenReturn(PrdAnalysisResponse.builder().id(1L).useful(true).build());
+
+        PrdAnalysisResponse result = analysisService.submitFeedback(1L, true);
+
+        assertThat(entity.getUseful()).isTrue();
+        assertThat(result.getUseful()).isTrue();
+        verify(repository).save(entity);
+    }
+
+    @Test
+    void submitFeedback_completed_savesUsefulFalse() {
+        PrdAnalysis entity = completedEntity();
+        when(repository.findById(2L)).thenReturn(Optional.of(entity));
+        when(repository.save(any())).thenReturn(entity);
+        when(mapper.toResponse(any())).thenReturn(PrdAnalysisResponse.builder().id(2L).useful(false).build());
+
+        PrdAnalysisResponse result = analysisService.submitFeedback(2L, false);
+
+        assertThat(entity.getUseful()).isFalse();
+        assertThat(result.getUseful()).isFalse();
+    }
+
+    @Test
+    void submitFeedback_notFound_throwsEntityNotFoundException() {
+        when(repository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> analysisService.submitFeedback(999L, true))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("999");
+    }
+
+    @Test
+    void submitFeedback_pendingEntity_throwsAiProcessingException() {
+        PrdAnalysis pending = PrdAnalysis.builder()
+                .prdInput(VALID_PRD)
+                .status(AnalysisStatus.PENDING)
+                .build();
+        when(repository.findById(3L)).thenReturn(Optional.of(pending));
+
+        assertThatThrownBy(() -> analysisService.submitFeedback(3L, true))
+                .isInstanceOf(AiProcessingException.class)
+                .hasMessageContaining("PENDING");
+    }
+
     @Test
     void getRecent_passesLimitToRepository() {
         when(repository.findByStatusOrderByCreatedAtDesc(eq(AnalysisStatus.COMPLETED), any(Pageable.class)))

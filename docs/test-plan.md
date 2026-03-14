@@ -20,6 +20,9 @@
 5. 반복 문자 입력 (단일 문자 50%+) → 400
 6. AI 실패 → 500 + 에러 메시지
 7. 존재하지 않는 id 조회 → 404
+8. 피드백 useful=true/false → 200, DB 저장 확인
+9. 완료되지 않은 분석에 피드백 → 500
+10. useful 필드 누락된 피드백 요청 → 400
 
 ## Frontend Tests
 
@@ -30,7 +33,7 @@
 
 ### Component Tests
 - `PrdInput.test.ts`: 버튼 비활성화(빈/짧은 입력/로딩), analyze emit, too-short 클래스, 샘플 로드
-- `AnalysisResult.test.ts`: 결과 ID 표시, README 섹션 조건부 렌더링, 8개 자식 컴포넌트, props 전달, result-notice 면책 문구, 복사 버튼 표시/숨김, clipboard.writeText 호출 검증
+- `AnalysisResult.test.ts`: 결과 ID 표시, README 섹션 조건부 렌더링, 8개 자식 컴포넌트, props 전달, result-notice 면책 문구, 복사 버튼 표시/숨김, clipboard.writeText 호출 검증, 피드백 버튼 렌더링, 기존 피드백 있을 때 버튼 비활성화
 - `Toast.test.ts`: 초기 빈 상태, show() 후 메시지 렌더링, success/error/info 클래스 적용, 다수 토스트 동시 렌더링, aria-live 속성, duration 후 자동 제거
 - `PdfExportButton.test.ts`: 모달 열기/닫기, 섹션 필터링, 전체 해제 시 버튼 비활성화, generatePdf 호출, 생성 중 닫기 방지
 - `App.test.ts`: scroll-to-top 버튼 표시/숨김/클릭

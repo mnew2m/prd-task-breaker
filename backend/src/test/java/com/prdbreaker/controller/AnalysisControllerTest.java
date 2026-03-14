@@ -193,6 +193,48 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.createdAt").value("2026-03-13T10:30:00"));
     }
 
+    // ── PATCH /api/v1/analysis/{id}/feedback ─────────────────────────────
+
+    @Test
+    void patchFeedback_usefulTrue_returns200() throws Exception {
+        when(analysisService.submitFeedback(1L, true)).thenReturn(buildResponse(1L));
+
+        mockMvc.perform(patch("/api/v1/analysis/1/feedback")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"useful\": true}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    void patchFeedback_usefulFalse_returns200() throws Exception {
+        when(analysisService.submitFeedback(2L, false)).thenReturn(buildResponse(2L));
+
+        mockMvc.perform(patch("/api/v1/analysis/2/feedback")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"useful\": false}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void patchFeedback_missingUsefulField_returns400() throws Exception {
+        mockMvc.perform(patch("/api/v1/analysis/1/feedback")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void patchFeedback_notFound_returns404() throws Exception {
+        when(analysisService.submitFeedback(999L, true))
+                .thenThrow(new EntityNotFoundException("Analysis not found with id: 999"));
+
+        mockMvc.perform(patch("/api/v1/analysis/999/feedback")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"useful\": true}"))
+                .andExpect(status().isNotFound());
+    }
+
     // ── GET /api/v1/health ────────────────────────────────────────────────
 
     @Test
