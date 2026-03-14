@@ -17,7 +17,6 @@
         <LoadingState v-if="isLoading" />
         <ErrorState v-else-if="error" :message="error" @retry="reset" />
         <AnalysisHistory
-          v-else
           :recent-list="recentList"
           @select="loadById"
         />

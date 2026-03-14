@@ -18,16 +18,9 @@
 <script setup lang="ts">
 import type { FeatureDto } from '../types/analysis'
 import { LayoutList } from 'lucide-vue-next'
+import { priorityClass } from '../utils/priority'
 
 defineProps<{ features: FeatureDto[] }>()
-
-function priorityClass(priority: string) {
-  return {
-    'badge-high': priority === 'HIGH',
-    'badge-medium': priority === 'MEDIUM',
-    'badge-low': priority === 'LOW'
-  }
-}
 </script>
 
 <style scoped>

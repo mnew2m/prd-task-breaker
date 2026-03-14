@@ -1,5 +1,5 @@
 <template>
-  <div class="error-state">
+  <div class="error-state" role="alert">
     <div class="error-icon">⚠️</div>
     <h3>분석 중 오류가 발생했습니다</h3>
     <p>{{ message }}</p>

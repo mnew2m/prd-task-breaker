@@ -21,11 +21,9 @@
 <script setup lang="ts">
 import type { TodoItemDto } from '../types/analysis'
 import { CheckSquare } from 'lucide-vue-next'
-defineProps<{ todos: TodoItemDto[] }>()
+import { priorityClass } from '../utils/priority'
 
-function priorityClass(p: string) {
-  return { 'badge-high': p === 'HIGH', 'badge-medium': p === 'MEDIUM', 'badge-low': p === 'LOW' }
-}
+defineProps<{ todos: TodoItemDto[] }>()
 </script>
 
 <style scoped>

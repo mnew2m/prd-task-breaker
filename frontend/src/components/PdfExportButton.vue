@@ -11,10 +11,10 @@
     </button>
 
     <!-- Modal overlay -->
-    <div v-if="isOpen" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
+    <div v-if="isOpen" class="modal-overlay" @click.self="closeModal" @keydown.escape="closeModal">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pdf-modal-title">
         <div class="modal-header">
-          <h3>PDF 내보내기</h3>
+          <h3 id="pdf-modal-title">PDF 내보내기</h3>
           <button class="close-btn" @click="closeModal" aria-label="닫기">✕</button>
         </div>
 

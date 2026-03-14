@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-state">
+  <div class="loading-state" role="status" aria-live="polite">
     <div class="spinner"></div>
     <p>AI가 PRD를 분석하고 있습니다...</p>
     <p class="hint">최대 30초 정도 소요될 수 있습니다</p>

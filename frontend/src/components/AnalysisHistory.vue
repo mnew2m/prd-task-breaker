@@ -1,6 +1,6 @@
 <template>
   <div class="history-panel">
-    <button class="history-toggle" @click="isOpen = !isOpen">
+    <button class="history-toggle" @click="isOpen = !isOpen" :aria-expanded="isOpen">
       <History :size="18" />
       <span>분석 히스토리</span>
       <ChevronDown :size="16" class="chevron" :class="{ open: isOpen }" />
@@ -16,7 +16,11 @@
           v-for="item in displayList"
           :key="item.id"
           class="history-card"
+          role="button"
+          tabindex="0"
           @click="$emit('select', item.id)"
+          @keydown.enter.prevent="$emit('select', item.id)"
+          @keydown.space.prevent="$emit('select', item.id)"
         >
           <div class="card-id">#{{ item.id }}</div>
           <div class="card-meta">
