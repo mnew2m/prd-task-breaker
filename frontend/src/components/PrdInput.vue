@@ -321,7 +321,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 }
 
 /* ── 반응형 ── */
-@media (max-width: 600px) {
+@media (max-width: 1023px) {
   .desktop-actions {
     display: none;
   }

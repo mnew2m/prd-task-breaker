@@ -27,6 +27,10 @@
             <span class="card-date">{{ formatDate(item.createdAt) }}</span>
             <span class="card-count">기능 {{ item.features.length }}개</span>
           </div>
+          <div v-if="item.useful != null" class="card-feedback" :class="item.useful ? 'useful-yes' : 'useful-no'">
+            <ThumbsUp v-if="item.useful" :size="13" />
+            <ThumbsDown v-else :size="13" />
+          </div>
         </li>
       </ul>
     </div>
@@ -35,7 +39,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { History, ChevronDown } from 'lucide-vue-next'
+import { History, ChevronDown, ThumbsUp, ThumbsDown } from 'lucide-vue-next'
 import type { PrdAnalysisResponse } from '../types/analysis'
 
 const props = defineProps<{
@@ -171,5 +175,20 @@ function formatDate(raw: string | number[]): string {
 .card-count {
   font-size: 0.75rem;
   color: #888;
+}
+
+.card-feedback {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.useful-yes {
+  color: #22c55e;
+}
+
+.useful-no {
+  color: #ef4444;
 }
 </style>

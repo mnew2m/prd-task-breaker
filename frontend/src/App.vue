@@ -35,7 +35,7 @@
         <div class="result-toolbar">
           <button class="btn-new" @click="reset">+ 새 분석</button>
         </div>
-        <AnalysisResult :result="result" />
+        <AnalysisResult :result="result" @feedback-submitted="loadRecent" />
       </template>
     </main>
   </div>
@@ -189,7 +189,7 @@ body {
   display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1023px) {
   .scroll-top-btn {
     display: flex;
     align-items: center;

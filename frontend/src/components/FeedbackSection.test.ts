@@ -61,6 +61,7 @@ describe('FeedbackSection', () => {
     wrapper.findAll('.feedback-btn').forEach(btn => {
       expect((btn.element as HTMLButtonElement).disabled).toBe(true)
     })
+    expect(wrapper.emitted('feedback-submitted')).toHaveLength(1)
   })
 
   it('shows error toast when API call fails', async () => {
