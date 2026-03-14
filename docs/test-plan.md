@@ -33,6 +33,7 @@
 - `useAnalysis.test.ts`: API 호출, 상태 관리, 취소(ERR_CANCELED) 처리, 성공 시 토스트 알림, AxiosError 기반 에러 메시지 추출
 - `useToast.test.ts`: show() 토스트 추가, 기본 타입, 커스텀 타입, 중복 스택, 고유 id, duration 후 자동 제거
 - `errors.test.ts`: 실제 `AxiosError` 인스턴스 기반 — `isCanceledError` (ERR_CANCELED/기타 코드/plain object/null), `extractApiErrorMessage` (응답 있음/없음/plain object/null)
+- `priority.test.ts`: `priorityClass` 유틸 — HIGH/MEDIUM/LOW/unknown 4케이스
 
 ### Component Tests
 - `PrdInput.test.ts`: 버튼 비활성화(빈/짧은 입력/로딩), analyze emit, too-short 클래스, 샘플 로드
@@ -48,7 +49,10 @@
 
 ## E2E Tests (Playwright)
 
-`frontend/e2e/smoke.spec.ts` — Chromium, API mock 포함:
+실행: `cd frontend && npm run test:e2e`
+CI: `frontend-e2e` 잡 (Chromium만), 결과는 `playwright-report/` 아티팩트로 저장
+
+### `smoke.spec.ts` — 기본 렌더링 및 입력 검증 (6개)
 1. 페이지 타이틀·헤더 렌더링 확인
 2. PRD 텍스트영역 표시 및 입력 동작
 3. 50자 미만 입력 시 분석 버튼 비활성화
@@ -56,8 +60,11 @@
 5. 샘플 PRD 불러오기 버튼 동작
 6. API mock + 분석 플로우 전체: POST 분석 → 결과 화면 전환 확인
 
-실행: `cd frontend && npm run test:e2e`
-CI: `frontend-e2e` 잡 (Chromium만), 결과는 `playwright-report/` 아티팩트로 저장
+### `user-flows.spec.ts` — 복합 사용자 시나리오 (4개)
+1. **에러 처리**: API 500 응답 시 에러 메시지 표시 및 입력 화면 유지 확인
+2. **분석 취소**: 로딩 중 취소 버튼 → ConfirmDialog → 확인 → 입력 화면 복귀 확인
+3. **히스토리 불러오기**: 분석 완료 → 새 분석 → 히스토리 카드 클릭 → 이전 결과 로딩 확인
+4. **피드백 제출**: 결과 화면에서 👍 클릭 → PATCH mock → 저장 완료 토스트 확인
 
 ## 성능 테스트
 

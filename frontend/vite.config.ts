@@ -20,10 +20,17 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.{ts,vue}'],
-      exclude: ['src/main.ts', 'src/**/*.d.ts', 'src/assets/**'],
+      exclude: [
+        'src/main.ts',
+        'src/**/*.d.ts',
+        'src/assets/**',
+        'src/api/analysisApi.ts',      // 모든 테스트에서 mock 처리 — 직접 호출되지 않음
+        'src/composables/usePdfExport.ts', // jsPDF DOM 의존 — jsdom에서 단위 테스트 불가
+      ],
       thresholds: {
-        lines: 40,
-        functions: 40,
+        lines: 70,
+        functions: 65,
+        branches: 85,
       },
     },
   }

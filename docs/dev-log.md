@@ -553,3 +553,38 @@ function onFeedbackSubmitted(useful: boolean) {
 
 - `FeedbackSection.test.ts`: emit payload 검증 추가 (`emitted('feedback-submitted')![0]`가 `[true]`인지 확인)
 - `App.test.ts`: `feedback-submitted` 수신 후 `result.useful === true`로 업데이트됐는지 검증 추가
+
+---
+
+## 2026-03-15 - 테스트 전략 보강
+
+> 관련 커밋: (이번 커밋)
+
+### 배경
+
+테스트 전략 평가에서 두 가지가 지적됐다. 첫째, 커버리지 목표치(40%)가 실제 커버리지 대비 너무 낮게 설정되어 있어 의미 있는 기준선 역할을 못 했다. 둘째, E2E 테스트가 기본 스모크 수준(입력·버튼 활성화 등)에 머물러 실제 사용자가 마주치는 복합 시나리오(에러 처리, 취소, 히스토리, 피드백)가 검증되지 않았다.
+
+### 수행 내용
+
+**커버리지 임계값 상향 및 측정 범위 정교화**
+
+`vite.config.ts` coverage 설정을 다음과 같이 변경했다:
+
+- `analysisApi.ts` 제외: 모든 테스트에서 mock으로 대체되어 직접 실행되지 않는 인프라 코드
+- `usePdfExport.ts` 제외: jsPDF 라이브러리가 DOM canvas에 직접 접근하므로 jsdom 환경에서 단위 테스트 불가
+- threshold: `lines 40 → 70`, `functions 40 → 65`, `branches 신규 85` 추가
+
+제외 후 실제 커버리지: **lines 97.17%, branches 92.39%, functions 78.94%**
+
+**`priority.test.ts` 신규 작성**
+
+`priorityClass` 유틸 함수의 HIGH/MEDIUM/LOW/unknown 4케이스를 단위 테스트로 커버했다. 기존에는 FeatureList 컴포넌트 통합 테스트에서 간접적으로만 실행되어 함수 자체의 coverage가 33%에 머물렀다.
+
+**`e2e/user-flows.spec.ts` 신규 작성 (4개 시나리오)**
+
+기존 `smoke.spec.ts`가 커버하지 않는 복합 사용자 흐름을 추가했다. 모두 `page.route()`로 API를 mock 처리해 백엔드 없이 실행 가능하다:
+
+1. **에러 처리**: POST 500 응답 시 에러 메시지가 화면에 표시되고 입력 폼이 유지되는지 검증
+2. **분석 취소**: 응답을 30초 지연시켜 로딩 상태를 유지한 채 취소 버튼 → ConfirmDialog → 확인 → 입력 화면 복귀 흐름 검증
+3. **히스토리 클릭**: 분석 완료 → 새 분석 → 히스토리 패널 → 카드 클릭 → GET /api/v1/analysis/{id} mock → 결과 화면 전환 검증
+4. **피드백 제출**: 결과 화면 렌더링 → 👍 버튼 클릭 → PATCH /api/v1/analysis/1/feedback mock → 저장 완료 토스트 표시 검증
