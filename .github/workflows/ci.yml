@@ -41,6 +41,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: cd frontend && npm ci
+      - name: Security audit
+        run: cd frontend && npm audit --audit-level=high
       - name: Type check
         run: cd frontend && npm run type-check
       - name: Test with coverage
