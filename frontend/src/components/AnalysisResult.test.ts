@@ -88,18 +88,9 @@ describe('AnalysisResult', () => {
     expect(wrapper.find('.copy-btn').exists()).toBe(false)
   })
 
-  it('renders feedback buttons', () => {
+  it('renders FeedbackSection component', () => {
     const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
-    expect(wrapper.find('.feedback-section').exists()).toBe(true)
-    expect(wrapper.findAll('.feedback-btn')).toHaveLength(2)
-  })
-
-  it('feedback buttons are disabled when useful is already set', () => {
-    const wrapper = shallowMount(AnalysisResult, {
-      props: { result: { ...mockResult, useful: true } },
-    })
-    const btns = wrapper.findAll('.feedback-btn')
-    btns.forEach(btn => expect((btn.element as HTMLButtonElement).disabled).toBe(true))
+    expect(wrapper.findComponent({ name: 'FeedbackSection' }).exists()).toBe(true)
   })
 
   it('clicking copy button calls clipboard.writeText with readmeDraft', async () => {

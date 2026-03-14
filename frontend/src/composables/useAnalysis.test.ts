@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import axios from 'axios'
 import { useAnalysis } from './useAnalysis'
 import { useToast } from './useToast'
 import { analysisApi } from '../api/analysisApi'
@@ -56,9 +57,11 @@ describe('useAnalysis', () => {
   })
 
   it('analyze api failure sets error message from response', async () => {
-    vi.mocked(analysisApi.analyze).mockRejectedValue({
-      response: { data: { message: 'AI failed' } }
-    })
+    vi.mocked(analysisApi.analyze).mockRejectedValue(
+      Object.assign(new axios.AxiosError('AI failed', 'ERR_BAD_RESPONSE'), {
+        response: { data: { message: 'AI failed' } },
+      })
+    )
 
     const { error, analyze } = useAnalysis()
     await analyze(VALID_PRD)
