@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SectionReorderModal from './SectionReorderModal.vue'
 import { type GridSectionKey } from '../utils/sections'
@@ -95,6 +95,42 @@ describe('SectionReorderModal', () => {
     expect(dialog.attributes('role')).toBe('dialog')
     expect(dialog.attributes('aria-modal')).toBe('true')
     expect(dialog.attributes('aria-labelledby')).toBe('reorder-dialog-title')
+  })
+
+  it('touchend without prior touchmove does not reorder', async () => {
+    const wrapper = mount(SectionReorderModal, {
+      props: { isOpen: true, order: DEFAULT_ORDER },
+    })
+    const items = wrapper.findAll('.section-item')
+    await items[0].trigger('touchstart', { touches: [{ clientX: 0, clientY: 0 }] })
+    // No touchmove → dragOverIndex stays null → onTouchEnd does not call onDrop
+    await items[0].trigger('touchend')
+    await wrapper.find('.btn-apply').trigger('click')
+    const newOrder = wrapper.emitted('apply')![0][0] as GridSectionKey[]
+    expect(newOrder[0]).toBe('features')
+  })
+
+  it('touch: reorders items via touchstart→touchmove→touchend', async () => {
+    const wrapper = mount(SectionReorderModal, {
+      props: { isOpen: true, order: DEFAULT_ORDER },
+      attachTo: document.body,
+    })
+    const items = wrapper.findAll('.section-item')
+    // Mock elementFromPoint to return the third item element (JSDOM doesn't implement it)
+    document.elementFromPoint = vi.fn(() => items[2].element) as typeof document.elementFromPoint
+
+    await items[0].trigger('touchstart', { touches: [{ clientX: 10, clientY: 10 }] })
+    await items[0].trigger('touchmove', { touches: [{ clientX: 10, clientY: 100 }] })
+    await items[0].trigger('touchend')
+
+    await wrapper.find('.btn-apply').trigger('click')
+    const newOrder = wrapper.emitted('apply')![0][0] as GridSectionKey[]
+    expect(newOrder[2]).toBe('features')
+    expect(newOrder[0]).toBe('userStories')
+
+    // @ts-expect-error restore
+    delete document.elementFromPoint
+    wrapper.unmount()
   })
 
   it('resets to original order when closed and reopened', async () => {

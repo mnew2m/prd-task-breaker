@@ -8,6 +8,13 @@
       <p class="subtitle">PRD를 입력하면 AI가 구조화된 개발 태스크를 생성합니다</p>
     </header>
 
+    <button
+      v-if="showScrollTop"
+      class="scroll-top-btn"
+      aria-label="맨 위로"
+      @click="scrollToTop"
+    >↑</button>
+
     <main class="app-main">
       <template v-if="!hasResult">
         <PrdInput
@@ -33,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useAnalysis } from './composables/useAnalysis'
 import { Zap } from 'lucide-vue-next'
 import PrdInput from './components/PrdInput.vue'
@@ -44,7 +51,24 @@ import AnalysisHistory from './components/AnalysisHistory.vue'
 
 const { result, isLoading, loadingMode, error, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
 
-onMounted(() => { loadRecent() })
+const showScrollTop = ref(false)
+
+function onScroll() {
+  showScrollTop.value = window.scrollY > 300
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+onMounted(() => {
+  loadRecent()
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+})
 </script>
 
 <style>
@@ -140,5 +164,30 @@ body {
 
 .btn-new:hover {
   background: #4f46e5;
+}
+
+.scroll-top-btn {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .scroll-top-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.25rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #6366f1;
+    color: white;
+    border: none;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+    z-index: 500;
+  }
 }
 </style>

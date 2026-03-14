@@ -21,7 +21,7 @@
 
       <p class="reorder-desc">드래그하여 카드 순서를 변경하세요.</p>
 
-      <ul class="section-list" aria-label="섹션 목록">
+      <ul ref="listRef" class="section-list" aria-label="섹션 목록">
         <li
           v-for="(key, index) in localOrder"
           :key="key"
@@ -33,6 +33,9 @@
           @dragover.prevent="onDragOver(index)"
           @drop.prevent="onDrop(index)"
           @dragend="onDragEnd"
+          @touchstart.passive="onTouchStart($event, index)"
+          @touchmove.prevent="onTouchMove"
+          @touchend="onTouchEnd"
         >
           <span class="drag-handle" aria-hidden="true">⠿</span>
           <span class="section-label">{{ SECTION_LABELS[key] }}</span>
@@ -63,6 +66,7 @@ const emit = defineEmits<{
 }>()
 
 const dialogRef = ref<HTMLElement | null>(null)
+const listRef = ref<HTMLElement | null>(null)
 const localOrder = ref<GridSectionKey[]>([...props.order])
 const dragIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
@@ -94,6 +98,29 @@ function onDrop(targetIndex: number) {
 }
 
 function onDragEnd() {
+  dragIndex.value = null
+  dragOverIndex.value = null
+}
+
+function onTouchStart(_e: TouchEvent, index: number) {
+  dragIndex.value = index
+}
+
+function onTouchMove(e: TouchEvent) {
+  if (dragIndex.value === null || !listRef.value) return
+  const touch = e.touches[0]
+  const el = document.elementFromPoint(touch.clientX, touch.clientY)
+  const item = el?.closest<HTMLElement>('.section-item')
+  if (!item || !listRef.value.contains(item)) return
+  const items = Array.from(listRef.value.querySelectorAll<HTMLElement>('.section-item'))
+  const overIndex = items.indexOf(item)
+  if (overIndex !== -1) dragOverIndex.value = overIndex
+}
+
+function onTouchEnd() {
+  if (dragIndex.value !== null && dragOverIndex.value !== null) {
+    onDrop(dragOverIndex.value)
+  }
   dragIndex.value = null
   dragOverIndex.value = null
 }
