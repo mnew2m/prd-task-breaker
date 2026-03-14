@@ -182,4 +182,22 @@ describe('AnalysisHistory', () => {
     await cards[1].trigger('click')
     expect(wrapper.emitted('select')![0]).toEqual([20])
   })
+
+  // ── keyboard navigation ───────────────────────────────────────────────────
+
+  it('Enter 키로 카드 선택 시 select 이벤트를 발생시킨다', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(5)] } })
+    await openPanel(wrapper)
+    await wrapper.find('.history-card').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.emitted('select')).toBeTruthy()
+    expect(wrapper.emitted('select')![0]).toEqual([5])
+  })
+
+  it('Space 키로 카드 선택 시 select 이벤트를 발생시킨다', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(5)] } })
+    await openPanel(wrapper)
+    await wrapper.find('.history-card').trigger('keydown', { key: ' ' })
+    expect(wrapper.emitted('select')).toBeTruthy()
+    expect(wrapper.emitted('select')![0]).toEqual([5])
+  })
 })

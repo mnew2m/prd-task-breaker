@@ -16,6 +16,11 @@ const mockResult = {
   createdAt: '2026-03-14T00:00:00',
 }
 
+const mockResultWithReadme = {
+  ...mockResult,
+  readmeDraft: '# 프로젝트 README\n\n로그인 기능을 제공하는 서비스입니다.',
+}
+
 test.describe('PRD Task Breaker — user flows', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
@@ -103,6 +108,80 @@ test.describe('PRD Task Breaker — user flows', () => {
     // 히스토리 카드 클릭 → 이전 결과 로딩
     await page.locator('.history-card').first().click()
     await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 10_000 })
+  })
+
+  // ── PDF 내보내기 ─────────────────────────────────────────────────────────────
+
+  test('PDF export modal opens with sections and can be closed', async ({ page }) => {
+    await page.route(/\/api\/v1\/analysis(\?.*)?$/, (route) => {
+      if (route.request().method() === 'POST') {
+        route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockResult) })
+      } else {
+        route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+      }
+    })
+
+    await page.getByRole('textbox').fill(LONG_PRD)
+    await page.getByRole('button', { name: 'AI 분석 시작' }).click()
+    await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 10_000 })
+
+    // PDF 저장 버튼 클릭 → 모달 열림
+    await page.getByRole('button', { name: 'PDF 저장' }).click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByText('PDF 내보내기')).toBeVisible()
+
+    // 취소 → 모달 닫힘
+    await page.getByRole('button', { name: '취소' }).click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+  })
+
+  // ── 섹션 순서 변경 ───────────────────────────────────────────────────────────
+
+  test('section reorder modal opens and applies without change', async ({ page }) => {
+    await page.route(/\/api\/v1\/analysis(\?.*)?$/, (route) => {
+      if (route.request().method() === 'POST') {
+        route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockResult) })
+      } else {
+        route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+      }
+    })
+
+    await page.getByRole('textbox').fill(LONG_PRD)
+    await page.getByRole('button', { name: 'AI 분석 시작' }).click()
+    await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 10_000 })
+
+    // 순서변경 버튼 클릭 → 모달 열림
+    await page.getByRole('button', { name: /순서변경/ }).click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+
+    // 적용 → 모달 닫힘
+    await page.getByRole('button', { name: '적용' }).click()
+    await expect(page.getByRole('dialog')).not.toBeVisible()
+
+    // 결과 화면 유지 확인
+    await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible()
+  })
+
+  // ── README 복사 ──────────────────────────────────────────────────────────────
+
+  test('README copy button shows success toast', async ({ page }) => {
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+
+    await page.route(/\/api\/v1\/analysis(\?.*)?$/, (route) => {
+      if (route.request().method() === 'POST') {
+        route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockResultWithReadme) })
+      } else {
+        route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+      }
+    })
+
+    await page.getByRole('textbox').fill(LONG_PRD)
+    await page.getByRole('button', { name: 'AI 분석 시작' }).click()
+    await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 10_000 })
+
+    // README 복사 버튼 클릭 → 성공 토스트
+    await page.getByRole('button', { name: /복사/ }).click()
+    await expect(page.getByRole('status').filter({ hasText: '클립보드에 복사되었습니다' })).toBeVisible({ timeout: 5_000 })
   })
 
   // ── 피드백 제출 ─────────────────────────────────────────────────────────────

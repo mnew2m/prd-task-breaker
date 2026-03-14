@@ -171,4 +171,35 @@ describe('useAnalysis', () => {
     expect(error.value).toBeNull()
     expect(hasResult.value).toBe(false)
   })
+
+  // ── abort ─────────────────────────────────────────────────────────────────
+
+  it('연속 analyze 호출 시 이전 요청의 AbortSignal이 abort된다', async () => {
+    let capturedSignal: AbortSignal | undefined
+    vi.mocked(analysisApi.analyze)
+      .mockImplementationOnce((_req, signal) => {
+        capturedSignal = signal
+        return new Promise(() => {}) // never resolves
+      })
+      .mockResolvedValue(mockResponse)
+
+    const { analyze } = useAnalysis()
+    analyze(VALID_PRD)           // first — in-flight, not awaited
+    await analyze(VALID_PRD)     // second — aborts first, then completes
+
+    expect(capturedSignal?.aborted).toBe(true)
+  })
+
+  it('loadRecent 실패 시 기존 recentList가 보존된다', async () => {
+    vi.mocked(analysisApi.getRecent)
+      .mockResolvedValueOnce([mockResponse])
+      .mockRejectedValueOnce(new Error('server down'))
+
+    const { recentList, loadRecent } = useAnalysis()
+    await loadRecent()
+    expect(recentList.value).toHaveLength(1)
+
+    await loadRecent() // fails — list should be preserved
+    expect(recentList.value).toHaveLength(1)
+  })
 })

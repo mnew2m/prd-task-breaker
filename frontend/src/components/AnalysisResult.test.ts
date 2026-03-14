@@ -1,7 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import AnalysisResult from './AnalysisResult.vue'
 import type { PrdAnalysisResponse } from '../types/analysis'
+import { useToast } from '../composables/useToast'
+
+const { toasts } = useToast()
+afterEach(() => { toasts.value = [] })
 
 const mockResult: PrdAnalysisResponse = {
   id: 42,
@@ -99,6 +103,36 @@ describe('AnalysisResult', () => {
     const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
     await wrapper.find('.copy-btn').trigger('click')
     expect(writeText).toHaveBeenCalledWith('# README Draft')
+  })
+
+  it('README 복사 성공 시 성공 토스트를 표시한다', async () => {
+    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } })
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    await wrapper.find('.copy-btn').trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+    expect(toasts.value.some(t => t.message === '클립보드에 복사되었습니다')).toBe(true)
+  })
+
+  it('README 복사 실패 시 에러 토스트를 표시한다', async () => {
+    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } })
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    await wrapper.find('.copy-btn').trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+    expect(toasts.value.some(t => t.type === 'error')).toBe(true)
+  })
+
+  it('모든 섹션이 빈 배열이고 readmeDraft가 null이어도 정상 렌더링된다', () => {
+    const emptyResult: PrdAnalysisResponse = {
+      ...mockResult,
+      features: [], userStories: [], todos: [], apiDrafts: [],
+      dbDrafts: [], testChecklist: [], releaseChecklist: [], uncertainItems: [],
+      readmeDraft: null,
+    }
+    const wrapper = shallowMount(AnalysisResult, { props: { result: emptyResult } })
+    expect(wrapper.find('.sections-grid').exists()).toBe(true)
+    expect(wrapper.find('.readme-section').exists()).toBe(false)
   })
 
   it('applies new section order when reorder modal emits apply', async () => {

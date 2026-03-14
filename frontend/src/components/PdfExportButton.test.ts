@@ -110,4 +110,20 @@ describe('PdfExportButton', () => {
     await wrapper.find('.modal-overlay').trigger('click')
     expect(wrapper.find('.modal-overlay').exists()).toBe(false)
   })
+
+  it('생성 중(isGenerating)에는 취소 버튼으로도 모달이 닫히지 않는다', async () => {
+    mockIsGenerating.value = true
+    const wrapper = mount(PdfExportButton, { props: { result: makeResult(), sectionOrder: defaultOrder } })
+    await wrapper.find('.pdf-btn').trigger('click')
+    await wrapper.find('.cancel-btn').trigger('click')
+    expect(wrapper.find('.modal-overlay').exists()).toBe(true)
+  })
+
+  it('생성 중(isGenerating)에는 오버레이 클릭으로도 모달이 닫히지 않는다', async () => {
+    mockIsGenerating.value = true
+    const wrapper = mount(PdfExportButton, { props: { result: makeResult(), sectionOrder: defaultOrder } })
+    await wrapper.find('.pdf-btn').trigger('click')
+    await wrapper.find('.modal-overlay').trigger('click')
+    expect(wrapper.find('.modal-overlay').exists()).toBe(true)
+  })
 })
