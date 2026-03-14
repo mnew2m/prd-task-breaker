@@ -121,6 +121,12 @@ function formatDate(raw: string | number[]): string {
   margin: 0;
 }
 
+@media (max-width: 1023px) {
+  .history-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 600px) {
   .history-list {
     grid-template-columns: 1fr;

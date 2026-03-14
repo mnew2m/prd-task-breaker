@@ -118,6 +118,16 @@ body {
   font-size: 1rem;
 }
 
+@media (max-width: 1023px) {
+  .app-header {
+    padding: 1.5rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.75rem;
+  }
+}
+
 @media (max-width: 600px) {
   .app-header {
     padding: 1.25rem 1rem;
@@ -138,6 +148,12 @@ body {
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .app-main {
+    padding: 1.5rem;
+  }
 }
 
 /* 섹션 타이틀 아이콘 정렬 */
