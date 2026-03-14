@@ -49,10 +49,12 @@ describe('App feedback-submitted → loadRecent', () => {
     const callsBefore = vi.mocked(analysisApiModule.analysisApi.getRecent).mock.calls.length
 
     const analysisResultStub = wrapper.findComponent({ name: 'AnalysisResult' })
-    await analysisResultStub.vm.$emit('feedback-submitted')
+    await analysisResultStub.vm.$emit('feedback-submitted', true)
     await flushPromises()
 
     expect(vi.mocked(analysisApiModule.analysisApi.getRecent).mock.calls.length).toBeGreaterThan(callsBefore)
+    // result.value.useful이 in-place 업데이트 됐는지 검증
+    expect((wrapper.vm as unknown as { result: { useful: boolean } }).result.useful).toBe(true)
   })
 })
 

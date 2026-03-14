@@ -17,3 +17,9 @@
   color: #999;
   font-style: italic;
 }
+
+@media (max-width: 600px) {
+  .section-card {
+    padding: 1rem;
+  }
+}

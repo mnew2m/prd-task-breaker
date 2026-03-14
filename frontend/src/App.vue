@@ -35,7 +35,7 @@
         <div class="result-toolbar">
           <button class="btn-new" @click="reset">+ 새 분석</button>
         </div>
-        <AnalysisResult :result="result" @feedback-submitted="loadRecent" />
+        <AnalysisResult :result="result" @feedback-submitted="onFeedbackSubmitted" />
       </template>
     </main>
   </div>
@@ -62,6 +62,11 @@ function onScroll() {
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function onFeedbackSubmitted(useful: boolean) {
+  if (result.value) result.value.useful = useful
+  loadRecent()
 }
 
 onMounted(() => {

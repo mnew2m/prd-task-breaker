@@ -29,7 +29,7 @@ import { useToast } from '../composables/useToast'
 
 const props = defineProps<{ result: PrdAnalysisResponse }>()
 
-const emit = defineEmits<{ 'feedback-submitted': [] }>()
+const emit = defineEmits<{ 'feedback-submitted': [useful: boolean] }>()
 
 const { show: showToast } = useToast()
 
@@ -44,7 +44,7 @@ async function submitFeedback(useful: boolean) {
     await analysisApi.submitFeedback(props.result.id, useful)
     feedbackValue.value = useful
     feedbackSubmitted.value = true
-    emit('feedback-submitted')
+    emit('feedback-submitted', useful)
     showToast('피드백이 저장되었습니다. 감사합니다!')
   } catch {
     showToast('피드백 저장에 실패했습니다', 'error')

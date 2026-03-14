@@ -47,7 +47,7 @@ function methodClass(m: string) {
 .method-put { background: #fef3c7; color: #d97706; }
 .method-delete { background: #fee2e2; color: #dc2626; }
 .method-patch { background: #ede9fe; color: #7c3aed; }
-.path { font-size: 0.9rem; background: #e8e8e8; padding: 0.1rem 0.4rem; border-radius: 4px; }
+.path { font-size: 0.9rem; background: #e8e8e8; padding: 0.1rem 0.4rem; border-radius: 4px; word-break: break-all; overflow-wrap: anywhere; }
 .api-desc { font-size: 0.875rem; color: #555; margin-bottom: 0.25rem; }
 .body-section { font-size: 0.8rem; margin-top: 0.25rem; }
 .body-label { font-weight: 600; color: #666; margin-right: 0.25rem; }

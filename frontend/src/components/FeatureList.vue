@@ -47,6 +47,8 @@ defineProps<{ features: FeatureDto[] }>()
 
 .feature-name {
   font-weight: 600;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .badge {

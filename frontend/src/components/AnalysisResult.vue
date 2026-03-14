@@ -32,7 +32,7 @@
       <pre class="readme-content">{{ result.readmeDraft }}</pre>
     </div>
 
-    <FeedbackSection :result="result" @feedback-submitted="$emit('feedback-submitted')" />
+    <FeedbackSection :result="result" @feedback-submitted="(v) => $emit('feedback-submitted', v)" />
 
     <SectionReorderModal
       :is-open="isReorderOpen"
@@ -63,7 +63,7 @@ import { type GridSectionKey, DEFAULT_SECTION_ORDER } from '../utils/sections'
 
 const props = defineProps<{ result: PrdAnalysisResponse }>()
 
-defineEmits<{ 'feedback-submitted': [] }>()
+defineEmits<{ 'feedback-submitted': [useful: boolean] }>()
 
 const DEFAULT_ORDER: GridSectionKey[] = DEFAULT_SECTION_ORDER
 

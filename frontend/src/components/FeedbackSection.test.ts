@@ -62,6 +62,7 @@ describe('FeedbackSection', () => {
       expect((btn.element as HTMLButtonElement).disabled).toBe(true)
     })
     expect(wrapper.emitted('feedback-submitted')).toHaveLength(1)
+    expect(wrapper.emitted('feedback-submitted')![0]).toEqual([true])
   })
 
   it('shows error toast when API call fails', async () => {
