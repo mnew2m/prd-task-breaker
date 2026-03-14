@@ -513,3 +513,43 @@ FeedbackSection → emit('feedback-submitted')
 - `AnalysisHistory.test.ts` 4개 추가: `useful=true` → `.useful-yes` 표시, `useful=false` → `.useful-no` 표시, `null` → 아이콘 숨김, `undefined` → 아이콘 숨김
 - `FeedbackSection.test.ts` 1개 추가: 제출 성공 시 `feedback-submitted` emit 검증
 - `App.test.ts` 1개 추가: `feedback-submitted` 수신 시 `getRecent` 재호출 검증
+
+---
+
+## 2026-03-15 - UX 개선: 피드백 즉시 반영 및 모바일 레이아웃 보완
+
+> 관련 커밋: `58114a1`
+
+### 배경
+
+사용자 경험 평가에서 두 가지 문제가 지적됐다. 첫째, 피드백(👍/👎) 제출 후 현재 표시 중인 분석 결과 객체(`result.value`)의 `useful` 필드가 갱신되지 않아 데이터 계층의 일관성이 없었다. 둘째, 결과 섹션 컴포넌트에서 긴 텍스트(API 경로, 기능명)가 모바일/태블릿에서 카드 밖으로 넘치는 오버플로 문제가 있었다.
+
+### 수행 내용
+
+**피드백 결과 즉시 반영 (`result.value.useful` in-place 업데이트)**
+
+기존에는 `FeedbackSection`이 제출 성공 시 `emit('feedback-submitted')`를 인자 없이 발행했다. App.vue는 이 이벤트를 받아 `loadRecent()`만 호출했기 때문에, 현재 화면에 표시 중인 `result.value.useful`은 여전히 `null`로 남았다.
+
+`useful: boolean` 값을 emit payload로 추가하고, App.vue의 핸들러를 다음과 같이 변경했다:
+
+```typescript
+function onFeedbackSubmitted(useful: boolean) {
+  if (result.value) result.value.useful = useful
+  loadRecent()
+}
+```
+
+이벤트 체인: `FeedbackSection` → `emit('feedback-submitted', useful)` → `AnalysisResult` 버블링 → `App.vue` in-place 업데이트 + `loadRecent()`
+
+이제 👍/👎 클릭 즉시 `result.value.useful`이 업데이트되어 데이터 계층과 UI가 일관된 상태를 유지한다.
+
+**모바일 레이아웃 오버플로 수정**
+
+- `section-card.css`: 모바일(≤600px)에서 카드 패딩 `1.5rem → 1rem`으로 축소해 콘텐츠 가용 폭 확보
+- `ApiDraft.vue`: `.path` code 요소에 `word-break: break-all; overflow-wrap: anywhere` 추가 — `/api/v1/analysis/{id}/very-long-endpoint` 같은 긴 경로가 카드 경계를 넘어가는 문제 해결
+- `FeatureList.vue`: `.feature-name`에 `min-width: 0; overflow-wrap: break-word` 추가 — flex 컨테이너에서 긴 기능명이 우측 badge를 밀어내거나 넘치는 문제 해결
+
+### 테스트 보강
+
+- `FeedbackSection.test.ts`: emit payload 검증 추가 (`emitted('feedback-submitted')![0]`가 `[true]`인지 확인)
+- `App.test.ts`: `feedback-submitted` 수신 후 `result.useful === true`로 업데이트됐는지 검증 추가

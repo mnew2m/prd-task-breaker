@@ -37,10 +37,10 @@
 ### Component Tests
 - `PrdInput.test.ts`: 버튼 비활성화(빈/짧은 입력/로딩), analyze emit, too-short 클래스, 샘플 로드
 - `AnalysisResult.test.ts`: 결과 ID 표시, README 섹션 조건부 렌더링, 8개 섹션 컴포넌트, props 전달, result-notice 면책 문구, 복사 버튼 표시/숨김, clipboard.writeText 호출 검증, FeedbackSection 컴포넌트 렌더링 확인
-- `FeedbackSection.test.ts`: 버튼 활성/비활성(prior feedback 여부), 선택 상태 표시, API 호출 및 제출 후 비활성화, 실패 시 에러 토스트, 제출 성공 시 `feedback-submitted` emit 확인
+- `FeedbackSection.test.ts`: 버튼 활성/비활성(prior feedback 여부), 선택 상태 표시, API 호출 및 제출 후 비활성화, 실패 시 에러 토스트, 제출 성공 시 `feedback-submitted(useful: boolean)` emit 및 payload 검증
 - `Toast.test.ts`: 초기 빈 상태, show() 후 메시지 렌더링, success/error/info 클래스 적용, 다수 토스트 동시 렌더링, aria-live 속성, duration 후 자동 제거
 - `PdfExportButton.test.ts`: 모달 열기/닫기, 섹션 필터링, 전체 해제 시 버튼 비활성화, generatePdf 호출, 생성 중 닫기 방지
-- `App.test.ts`: scroll-to-top 버튼 표시/숨김/클릭, `feedback-submitted` 수신 시 `loadRecent()` 호출 검증
+- `App.test.ts`: scroll-to-top 버튼 표시/숨김/클릭, `feedback-submitted` 수신 시 `result.value.useful` in-place 업데이트 및 `loadRecent()` 호출 검증
 - `SectionReorderModal.test.ts`: 드래그 순서 변경, 터치 드래그, 취소 시 초기화
 - `AnalysisHistory.test.ts`: 히스토리 목록 렌더링, 접기/펼치기, 카드 클릭 emit, 최근 3개 제한, `useful=true/false` 피드백 아이콘 표시, `useful=null/undefined` 아이콘 숨김
 - `ConfirmDialog.test.ts`: 열림/닫힘 렌더링, 확인/취소 emit, ESC 키 닫기, 포커스 트랩
