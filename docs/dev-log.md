@@ -196,6 +196,28 @@ PRD에 "누가 쓰는가"(페르소나)와 "성공을 어떻게 측정하는가"
 
 ---
 
+## 2026-03-14 - Code Quality & Architecture Documentation
+
+### 수행 내용 및 문제 해결 과정
+
+**아키텍처 문서 보강 (architecture.md)**
+- AnalysisStatus 상태 머신(PENDING → COMPLETED/FAILED) 다이어그램 추가
+- `analyze()`의 `@Transactional` 의도적 생략 이유 문서화 (FAILED 이력을 별도 트랜잭션으로 DB에 보존)
+- MVP 설계 트레이드오프 및 향후 확장 시나리오 섹션 추가 (비동기 전환, 정규화, 멀티사용자, AI 제공자 교체)
+- AI 모델 선택 근거 및 토큰 예산 계산 추가 (입력 ~12,800 / 출력 ~1,600 토큰, haiku 한도의 6.4% / 20%)
+
+**에러 처리 유틸 분리 (utils/errors.ts)**
+`useAnalysis.ts`의 catch 블록에 인라인 타입 가드가 중복되어 있었다. `isCanceledError()`와 `extractApiErrorMessage()`를 `utils/errors.ts`로 분리해 의도를 명시화하고 재사용 가능하게 했다.
+
+**커스텀 입력 검증 추가 (@ValidPrdContent)**
+`@NotBlank` + `@Size`만으로는 `"a".repeat(50)` 같은 의미 없는 입력이 통과됐다. `PrdContentValidator`에 두 가지 검사를 추가했다:
+- 최소 5개 단어 미만 → 400 반환
+- 단일 문자가 비공백 문자의 50% 이상 → 400 반환
+
+**의존성 보안 관리 강화**
+- CI에 `npm audit --audit-level=high` 추가: critical/high 취약점 발견 시 빌드 실패
+- `.github/dependabot.yml` 추가: npm/gradle/github-actions 주 1회 자동 업데이트 PR
+
 ## 2026-03-14 - Mobile UX
 
 ### 수행 내용 및 문제 해결 과정
