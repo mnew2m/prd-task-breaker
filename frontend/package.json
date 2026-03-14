@@ -14,8 +14,8 @@
   "dependencies": {
     "@expo-google-fonts/noto-sans-kr": "^0.4.3",
     "axios": "^1.6.0",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "lucide-vue-next": "^0.577.0",
     "vue": "^3.4.0"
   },

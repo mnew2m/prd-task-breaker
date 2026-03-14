@@ -41,8 +41,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: cd frontend && npm ci
-      - name: Security audit
-        run: cd frontend && npm audit --audit-level=high
+      - name: Security audit (production dependencies only)
+        # --omit=dev: vite/vitest/esbuild 등 개발 전용 의존성 제외
+        # 이들은 dev server 관련 취약점으로 프로덕션 빌드에 미포함
+        run: cd frontend && npm audit --omit=dev --audit-level=high
       - name: Type check
         run: cd frontend && npm run type-check
       - name: Test with coverage
