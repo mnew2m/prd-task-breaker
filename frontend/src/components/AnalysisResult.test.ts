@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
 import AnalysisResult from './AnalysisResult.vue'
 import type { PrdAnalysisResponse } from '../types/analysis'
@@ -67,6 +67,32 @@ describe('AnalysisResult', () => {
     expect(modal.props('isOpen')).toBe(false)
     await wrapper.find('.reorder-btn').trigger('click')
     expect(modal.props('isOpen')).toBe(true)
+  })
+
+  it('renders result-notice disclaimer', () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    expect(wrapper.find('.result-notice').exists()).toBe(true)
+    expect(wrapper.find('.result-notice').text()).toContain('AI가 PRD에서')
+  })
+
+  it('renders copy button when readmeDraft is set', () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    expect(wrapper.find('.copy-btn').exists()).toBe(true)
+  })
+
+  it('hides copy button when readmeDraft is null', () => {
+    const wrapper = shallowMount(AnalysisResult, {
+      props: { result: { ...mockResult, readmeDraft: null } },
+    })
+    expect(wrapper.find('.copy-btn').exists()).toBe(false)
+  })
+
+  it('clicking copy button calls clipboard.writeText with readmeDraft', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.assign(navigator, { clipboard: { writeText } })
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    await wrapper.find('.copy-btn').trigger('click')
+    expect(writeText).toHaveBeenCalledWith('# README Draft')
   })
 
   it('applies new section order when reorder modal emits apply', async () => {

@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useAnalysis } from './useAnalysis'
+import { useToast } from './useToast'
 import { analysisApi } from '../api/analysisApi'
 
 vi.mock('../api/analysisApi')
@@ -26,6 +27,11 @@ describe('useAnalysis', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(analysisApi.getRecent).mockResolvedValue([])
+  })
+
+  afterEach(() => {
+    const { toasts } = useToast()
+    toasts.value = []
   })
 
   // ── analyze ──────────────────────────────────────────────────────────────
@@ -67,6 +73,16 @@ describe('useAnalysis', () => {
     await analyze(VALID_PRD)
 
     expect(error.value).toContain('서버에 연결할 수 없습니다')
+  })
+
+  it('analyze success shows toast notification', async () => {
+    vi.mocked(analysisApi.analyze).mockResolvedValue(mockResponse)
+
+    const { toasts } = useToast()
+    const { analyze } = useAnalysis()
+    await analyze(VALID_PRD)
+
+    expect(toasts.value.some(t => t.message === '분석이 완료되었습니다')).toBe(true)
   })
 
   it('analyze success auto-refreshes recentList', async () => {

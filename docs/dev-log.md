@@ -234,3 +234,31 @@ PRD에 "누가 쓰는가"(페르소나)와 "성공을 어떻게 측정하는가"
 **테스트 보강**
 - `App.test.ts` 신규 작성: scroll-to-top 버튼의 표시·숨김·클릭 동작을 `window.scrollY` mocking + scroll 이벤트 dispatch로 검증
 - `SectionReorderModal.test.ts` 터치 테스트 추가: JSDOM에 `document.elementFromPoint`가 없어 `vi.fn()`으로 직접 정의 후 사용, touchmove 없는 경우(순서 유지)와 있는 경우(순서 변경) 두 케이스 검증
+
+---
+
+## 2026-03-14 - Toast Notification & UX Polish
+
+### 수행 내용 및 문제 해결 과정
+
+**Toast 알림 시스템 구현 (useToast + Toast.vue)**
+분석 완료, PDF 저장, 클립보드 복사 등 비동기 액션이 끝난 후 사용자에게 결과를 알릴 방법이 없었다. 전용 composable(`useToast`)과 컴포넌트(`Toast.vue`)를 구현했다.
+
+핵심 설계 선택: 토스트 목록(`toasts`)을 **모듈 레벨 `ref`**로 선언해 싱글턴 상태로 관리했다. Vue의 Provide/Inject 없이 어느 컴포넌트·composable에서든 `useToast()`를 호출하면 동일한 목록에 접근할 수 있다. 테스트 간 격리를 위해 각 테스트의 `afterEach`에서 `toasts.value = []`로 초기화한다.
+
+`Toast.vue`는 `TransitionGroup`으로 진입/퇴장 애니메이션을 적용하고, `aria-live="polite"` 속성으로 스크린 리더에도 알림이 전달되도록 접근성을 함께 구현했다.
+
+**README 복사 버튼 (AnalysisResult.vue)**
+README 초안을 수동으로 선택·복사해야 하는 불편이 있었다. 복사 버튼을 추가하고 `navigator.clipboard.writeText()`로 클립보드에 복사 후 Toast 알림(`클립보드에 복사되었습니다`)을 표시하도록 구현했다.
+
+**AI 한계 면책 문구 추가 (result-notice)**
+AI가 복잡한 PRD에서 모든 항목을 추출하지 못할 수 있음을 사용자가 인지하지 못하면 누락 항목을 버그로 오해할 수 있다. 분석 결과 상단에 "AI가 PRD에서 핵심 항목을 추출했습니다. PRD가 복잡한 경우 중요도 높은 항목 위주로 요약될 수 있습니다." 문구를 추가해 기대치를 조율했다.
+
+**PromptTemplate 항목 수 상향 조정**
+기존 프롬프트에 설정된 최대 항목 수(features 5개, todos 10개 등)가 실제 PRD 복잡도에 비해 너무 적어 중요한 항목이 누락되는 사례가 있었다. features/userStories 5→8, todos 10→15, apiDrafts 8→10, dbDrafts/testChecklist/releaseChecklist 5→8로 상향했다.
+
+**테스트 보강**
+- `useToast.test.ts` 신규 작성 (7개): show() 추가, 기본 타입, 커스텀 타입, 다수 스택, 고유 id, duration 제거, 다른 토스트 유지
+- `Toast.test.ts` 신규 작성 (8개): 초기 빈 상태, 메시지 렌더링, success/error/info 클래스, 다수 동시 렌더링, aria-live, duration 후 자동 제거
+- `AnalysisResult.test.ts` 추가 (4개): result-notice 존재, 복사 버튼 표시/숨김, clipboard.writeText 호출 검증
+- `useAnalysis.test.ts` 추가 (1개): 분석 성공 시 토스트 메시지('분석이 완료되었습니다') 확인 + afterEach 토스트 초기화 추가
