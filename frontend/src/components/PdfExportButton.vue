@@ -68,25 +68,30 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { PrdAnalysisResponse } from '../types/analysis'
-import { usePdfExport, ALL_SECTIONS, SECTION_LABELS } from '../composables/usePdfExport'
+import { usePdfExport, SECTION_LABELS } from '../composables/usePdfExport'
 import type { SectionKey } from '../composables/usePdfExport'
+import type { GridSectionKey } from '../utils/sections'
 
-const props = defineProps<{ result: PrdAnalysisResponse }>()
+const props = defineProps<{
+  result: PrdAnalysisResponse
+  sectionOrder: GridSectionKey[]
+}>()
 
 const isOpen = ref(false)
-const selected = ref<SectionKey[]>([...ALL_SECTIONS])
+const selected = ref<SectionKey[]>([])
 const { generatePdf, isGenerating } = usePdfExport()
 
-// Only show sections that have data
-const availableSections = computed<SectionKey[]>(() =>
-  ALL_SECTIONS.filter((key) => {
+// Sections ordered by sectionOrder, with readmeDraft appended at end
+const availableSections = computed<SectionKey[]>(() => {
+  const ordered: SectionKey[] = [...props.sectionOrder, 'readmeDraft']
+  return ordered.filter((key) => {
     const val = props.result[key as keyof PrdAnalysisResponse]
     if (val === null || val === undefined) return false
     if (Array.isArray(val)) return val.length > 0
     if (typeof val === 'string') return val.length > 0
     return true
-  }),
-)
+  })
+})
 
 const isAllSelected = computed(
   () => selected.value.length === availableSections.value.length,

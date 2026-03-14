@@ -7,7 +7,7 @@
         <button class="reorder-btn" @click="isReorderOpen = true" aria-label="섹션 순서 변경">
           <GripVertical :size="15" /> 순서변경
         </button>
-        <PdfExportButton :result="result" />
+        <PdfExportButton :result="result" :section-order="sectionOrder" />
       </div>
     </div>
 
