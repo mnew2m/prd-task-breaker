@@ -150,8 +150,8 @@ test.describe('PRD Task Breaker — user flows', () => {
     await page.getByRole('button', { name: 'AI 분석 시작' }).click()
     await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 10_000 })
 
-    // 순서변경 버튼 클릭 → 모달 열림
-    await page.getByRole('button', { name: /순서변경/ }).click()
+    // 순서변경 버튼 클릭 → 모달 열림 (aria-label="섹션 순서 변경")
+    await page.getByRole('button', { name: '섹션 순서 변경' }).click()
     await expect(page.getByRole('dialog')).toBeVisible()
 
     // 적용 → 모달 닫힘
