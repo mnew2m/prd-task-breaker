@@ -111,7 +111,7 @@ class AiResponseMapperTest {
                 {
                   "features":[],"userStories":[],"todos":[],
                   "apiDrafts": [
-                    {"method":"POST","path":"/api/v1/items","description":"create","requestBody":"{\"name\":\"x\"}","responseBody":"{\"id\":1}","notes":null},
+                    {"method":"POST","path":"/api/v1/items","description":"create","requestBody":"{\\"name\\":\\"x\\"}","responseBody":"{\\"id\\":1}","notes":null},
                     {"method":"DELETE","path":"/api/v1/items/1","description":"delete","requestBody":null,"responseBody":null,"notes":null}
                   ],
                   "dbDrafts":[],"testChecklist":[],"releaseChecklist":[],"uncertainItems":[]
