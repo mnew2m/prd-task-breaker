@@ -17,9 +17,13 @@ export default defineConfig({
     environment: 'jsdom',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.{ts,vue}'],
-      exclude: ['src/main.ts', 'src/**/*.d.ts'],
+      exclude: ['src/main.ts', 'src/**/*.d.ts', 'src/assets/**'],
+      thresholds: {
+        lines: 40,
+        functions: 40,
+      },
     },
   }
 })
