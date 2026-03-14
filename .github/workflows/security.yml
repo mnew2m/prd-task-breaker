@@ -7,36 +7,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  backend-security:
+  trivy-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Trivy vulnerability scan (backend)
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+          scan-type: fs
+          scan-ref: backend
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+      - name: Trivy vulnerability scan (frontend)
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          gradle-version: '8.13'
-      - name: Cache OWASP NVD data
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/dependency-check-data
-          key: owasp-nvd-${{ runner.os }}-${{ hashFiles('backend/build.gradle') }}
-          restore-keys: owasp-nvd-${{ runner.os }}-
-      - name: OWASP Dependency Check
-        # NVD_API_KEY: https://nvd.nist.gov/developers/request-an-api-key 에서 무료 발급
-        # GitHub repo → Settings → Secrets → NVD_API_KEY 에 등록
-        # Critical(CVSS≥9) 취약점 발견 시 빌드 실패
-        continue-on-error: true
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: cd backend && gradle dependencyCheckAnalyze --no-daemon
-      - name: Upload OWASP report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: owasp-report
-          path: backend/build/reports/dependency-check-report.html
+          scan-type: fs
+          scan-ref: frontend
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
