@@ -179,3 +179,36 @@ HTTP Response
          dbDrafts[], testChecklist[], releaseChecklist[],
          uncertainItems[], readmeDraft, createdAt }
 ```
+
+---
+
+## 도메인 상태 머신 — AnalysisStatus
+
+`PrdAnalysis` 엔티티는 분석 진행 상태를 추적한다.
+
+```
+[PENDING]
+    │
+    ├─ AI 처리 성공 ──▶ [COMPLETED]  (resultJson 저장, completedAt 기록)
+    │
+    └─ AI 처리 실패 ──▶ [FAILED]     (resultJson=null, completedAt 기록)
+```
+
+상태 전이는 엔티티 메서드로 캡슐화되어 있다:
+- `entity.complete(resultJson)` — status=COMPLETED, completedAt=now()
+- `entity.fail()` — status=FAILED, completedAt=now()
+
+`getById()`, `getRecent()`는 COMPLETED 상태만 반환하므로 PENDING/FAILED 레코드는 히스토리에 노출되지 않는다.
+
+### @Transactional 의도적 생략 (AnalysisService.analyze)
+
+```
+repository.save(PENDING)  ← 트랜잭션 1: 즉시 커밋
+      │
+      ├─ 성공 → entity.complete() → repository.save(COMPLETED)  ← 트랜잭션 2
+      │
+      └─ 실패 → entity.fail()    → repository.save(FAILED)      ← 트랜잭션 3
+                                    → AiProcessingException 전파
+```
+
+`analyze()` 메서드에 `@Transactional`을 붙이면 세 번의 save가 하나의 트랜잭션에 묶인다. 이 경우 AI 처리 실패 시 FAILED 상태 저장도 롤백되어 PENDING 레코드만 남게 된다. 트랜잭션을 의도적으로 분리해 **실패 이력이 DB에 남도록** 설계했다.
