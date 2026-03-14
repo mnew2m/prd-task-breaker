@@ -57,4 +57,5 @@ export interface PrdAnalysisResponse {
   uncertainItems: string[]
   readmeDraft: string | null
   createdAt: string | number[]
+  useful: boolean | null
 }

@@ -35,6 +35,7 @@ public class AiResponseMapper {
                 .uncertainItems(parseStringList(root, "uncertainItems"))
                 .readmeDraft(getTextOrNull(root, "readmeDraft"))
                 .createdAt(entity.getCreatedAt())
+                .useful(entity.getUseful())
                 .build();
     }
 

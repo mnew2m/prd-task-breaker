@@ -36,6 +36,9 @@ public class PrdAnalysis {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
+    @Column(name = "useful")
+    private Boolean useful;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -50,5 +53,9 @@ public class PrdAnalysis {
     public void fail() {
         this.status = AnalysisStatus.FAILED;
         this.completedAt = LocalDateTime.now();
+    }
+
+    public void markUseful(boolean useful) {
+        this.useful = useful;
     }
 }

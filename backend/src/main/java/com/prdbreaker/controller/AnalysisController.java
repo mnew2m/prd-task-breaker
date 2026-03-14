@@ -1,5 +1,6 @@
 package com.prdbreaker.controller;
 
+import com.prdbreaker.dto.request.FeedbackRequest;
 import com.prdbreaker.dto.request.PrdAnalysisRequest;
 import com.prdbreaker.dto.response.PrdAnalysisResponse;
 import com.prdbreaker.service.AnalysisService;
@@ -41,6 +42,14 @@ public class AnalysisController {
     public ResponseEntity<List<PrdAnalysisResponse>> getRecent(
             @RequestParam(defaultValue = "3") @Min(1) @Max(100) int limit) {
         return ResponseEntity.ok(analysisService.getRecent(limit));
+    }
+
+    @PatchMapping("/analysis/{id}/feedback")
+    public ResponseEntity<PrdAnalysisResponse> submitFeedback(
+            @PathVariable Long id,
+            @Valid @RequestBody FeedbackRequest request) {
+        log.info("PATCH /api/v1/analysis/{}/feedback - useful={}", id, request.getUseful());
+        return ResponseEntity.ok(analysisService.submitFeedback(id, request.getUseful()));
     }
 
     @GetMapping("/health")

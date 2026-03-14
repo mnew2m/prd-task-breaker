@@ -24,4 +24,5 @@ public class PrdAnalysisResponse {
     private List<String> uncertainItems;
     private String readmeDraft;
     private LocalDateTime createdAt;
+    private Boolean useful;
 }

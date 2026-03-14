@@ -42,6 +42,7 @@ cd frontend && npm install && npm run dev
 - `POST /api/v1/analysis` - PRD 분석
 - `GET /api/v1/analysis/{id}` - 분석 결과 조회
 - `GET /api/v1/analysis` - 최근 분석 목록
+- `PATCH /api/v1/analysis/{id}/feedback` - 분석 유용성 피드백 (`{"useful": true/false}`)
 - `GET /api/v1/health` - 헬스체크
 
 ## Features

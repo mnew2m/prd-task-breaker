@@ -58,6 +58,19 @@ public class AnalysisService {
         return mapper.toResponse(entity);
     }
 
+    @Transactional
+    public PrdAnalysisResponse submitFeedback(Long id, boolean useful) {
+        PrdAnalysis entity = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Analysis not found with id: " + id));
+        if (entity.getStatus() != AnalysisStatus.COMPLETED) {
+            throw new AiProcessingException("Cannot submit feedback for incomplete analysis. Status: " + entity.getStatus());
+        }
+        entity.markUseful(useful);
+        entity = repository.save(entity);
+        log.info("Feedback submitted for id={}, useful={}", id, useful);
+        return mapper.toResponse(entity);
+    }
+
     @Transactional(readOnly = true)
     public List<PrdAnalysisResponse> getRecent(int limit) {
         return repository.findByStatusOrderByCreatedAtDesc(AnalysisStatus.COMPLETED, PageRequest.of(0, limit))

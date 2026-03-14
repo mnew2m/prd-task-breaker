@@ -21,5 +21,9 @@ export const analysisApi = {
 
   getRecent(limit = 3): Promise<PrdAnalysisResponse[]> {
     return apiClient.get<PrdAnalysisResponse[]>('/analysis', { params: { limit } }).then(r => r.data)
+  },
+
+  submitFeedback(id: number, useful: boolean): Promise<PrdAnalysisResponse> {
+    return apiClient.patch<PrdAnalysisResponse>(`/analysis/${id}/feedback`, { useful }).then(r => r.data)
   }
 }
