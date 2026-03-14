@@ -132,6 +132,37 @@ describe('AnalysisHistory', () => {
     expect(wrapper.find('.card-date').text()).toBe('2026-03-13 08:06')
   })
 
+  // ── feedback icon ─────────────────────────────────────────────────────────
+
+  it('shows useful-yes icon when useful is true', async () => {
+    const item = { ...makeItem(1), useful: true }
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-feedback.useful-yes').exists()).toBe(true)
+    expect(wrapper.find('.card-feedback.useful-no').exists()).toBe(false)
+  })
+
+  it('shows useful-no icon when useful is false', async () => {
+    const item = { ...makeItem(1), useful: false }
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-feedback.useful-no').exists()).toBe(true)
+    expect(wrapper.find('.card-feedback.useful-yes').exists()).toBe(false)
+  })
+
+  it('hides feedback icon when useful is null', async () => {
+    const item = { ...makeItem(1), useful: null }
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-feedback').exists()).toBe(false)
+  })
+
+  it('hides feedback icon when useful is undefined', async () => {
+    const wrapper = mount(AnalysisHistory, { props: { recentList: [makeItem(1)] } })
+    await openPanel(wrapper)
+    expect(wrapper.find('.card-feedback').exists()).toBe(false)
+  })
+
   // ── select event ──────────────────────────────────────────────────────────
 
   it('emits select event with correct id when card is clicked', async () => {

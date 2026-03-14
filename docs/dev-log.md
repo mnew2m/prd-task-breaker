@@ -470,3 +470,46 @@ k6 run -e BASE_URL=https://staging.example.com perf/load-test.js
 - 실제 분량의 한국어 PRD 샘플(`SAMPLE_PRD`)을 request body에 포함해 AI 처리 시간을 현실적으로 측정
 - `BASE_URL` 환경변수로 로컬/스테이징 전환 가능하게 구성
 - 각 요청 후 `sleep(1)`로 서버 과부하 방지 (성능 측정 목적이 아닌 안정성 확인 시나리오)
+
+---
+
+## 2026-03-15 - 반응형 및 UX 개선
+
+> 관련 커밋: `cda57cf`, `b4ce15c`
+
+### 수행 내용
+
+**태블릿(601~1023px) 브레이크포인트 추가**
+
+기존에는 `max-width: 600px` 한 단계만 존재해, 태블릿 해상도에서 데스크탑과 완전히 동일한 레이아웃이 유지됐다.
+
+- `AnalysisHistory`: `repeat(3, 1fr)` → `repeat(2, 1fr)` (≤1023px) → `1fr` (≤600px) 단계적 전환
+- `app-header`: 태블릿에서 패딩 1.5rem / h1 1.75rem으로 축소
+- `app-main`: 태블릿에서 패딩 1.5rem으로 축소
+
+**태블릿에서 템플릿 복사 메뉴 표시**
+
+데스크탑에서는 "템플릿 다운로드" 링크, 모바일에서는 클립보드 복사 드롭다운이 표시됐다. 태블릿(터치 기기 포함)에서도 다운로드보다 복사가 더 자연스럽기 때문에, `desktop-actions / mobile-menu` 전환 브레이크포인트를 `600px → 1023px`로 변경했다.
+
+**scroll-to-top 버튼 태블릿에도 표시**
+
+스크롤이 길어지는 분석 결과 화면에서 태블릿 사용자도 상단 복귀가 필요하다고 판단해, 표시 기준을 `max-width: 600px → 1023px`로 확대했다.
+
+**피드백 아이콘 히스토리 카드 즉시 반영**
+
+피드백 제출 후 "새 분석" 버튼을 누르면 히스토리 카드의 `useful` 값이 갱신되지 않아 👍/👎 아이콘이 표시되지 않는 문제가 있었다. `loadRecent()`가 `analyze()` 성공 시에만 호출되고 피드백 제출 후에는 호출되지 않는 것이 원인이었다.
+
+이벤트를 체인으로 연결해 해결했다:
+```
+FeedbackSection → emit('feedback-submitted')
+  → AnalysisResult → $emit('feedback-submitted') 버블링
+    → App.vue → @feedback-submitted="loadRecent"
+```
+
+`AnalysisHistory`는 `useful` 값이 `true/false`이면 카드 우측에 ThumbsUp(초록)/ThumbsDown(빨간) 아이콘을 표시하고, `null/undefined`이면 숨긴다.
+
+### 테스트 보강
+
+- `AnalysisHistory.test.ts` 4개 추가: `useful=true` → `.useful-yes` 표시, `useful=false` → `.useful-no` 표시, `null` → 아이콘 숨김, `undefined` → 아이콘 숨김
+- `FeedbackSection.test.ts` 1개 추가: 제출 성공 시 `feedback-submitted` emit 검증
+- `App.test.ts` 1개 추가: `feedback-submitted` 수신 시 `getRecent` 재호출 검증

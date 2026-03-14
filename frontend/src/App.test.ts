@@ -1,18 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import App from './App.vue'
+import * as analysisApiModule from './api/analysisApi'
 
 vi.mock('./api/analysisApi', () => ({
   analysisApi: {
     analyze: vi.fn(),
     getById: vi.fn(),
     getRecent: vi.fn().mockResolvedValue([]),
+    submitFeedback: vi.fn(),
   },
 }))
 
 const stubs = {
   PrdInput: { template: '<div />' },
-  AnalysisResult: { template: '<div />' },
+  AnalysisResult: {
+    name: 'AnalysisResult',
+    template: '<div><slot /></div>',
+    props: ['result'],
+    emits: ['feedback-submitted'],
+  },
   LoadingState: { template: '<div />' },
   ErrorState: { template: '<div />' },
   AnalysisHistory: { template: '<div />', props: ['recentList'] },
@@ -21,6 +28,32 @@ const stubs = {
 
 beforeEach(() => {
   Object.defineProperty(window, 'scrollY', { value: 0, configurable: true })
+})
+
+describe('App feedback-submitted → loadRecent', () => {
+  it('calls getRecent when AnalysisResult emits feedback-submitted', async () => {
+    vi.mocked(analysisApiModule.analysisApi.analyze).mockResolvedValue({
+      id: 1, features: [], userStories: [], todos: [], apiDrafts: [], dbDrafts: [],
+      testChecklist: [], releaseChecklist: [], uncertainItems: [], readmeDraft: null,
+      createdAt: '2026-03-13T00:00:00',
+    })
+    vi.mocked(analysisApiModule.analysisApi.getRecent).mockResolvedValue([])
+
+    const wrapper = mount(App, { global: { stubs } })
+    // analyze → result 상태 진입
+    await (wrapper.vm as unknown as { analyze: (s: string) => Promise<void> }).analyze(
+      'a'.repeat(50)
+    )
+    await flushPromises()
+
+    const callsBefore = vi.mocked(analysisApiModule.analysisApi.getRecent).mock.calls.length
+
+    const analysisResultStub = wrapper.findComponent({ name: 'AnalysisResult' })
+    await analysisResultStub.vm.$emit('feedback-submitted')
+    await flushPromises()
+
+    expect(vi.mocked(analysisApiModule.analysisApi.getRecent).mock.calls.length).toBeGreaterThan(callsBefore)
+  })
 })
 
 describe('App scroll-to-top', () => {
