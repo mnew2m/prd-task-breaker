@@ -75,7 +75,7 @@ test.describe('PRD Task Breaker — user flows', () => {
   // ── 히스토리에서 이전 결과 불러오기 ─────────────────────────────────────────
 
   test('clicking history card loads previous analysis result', async ({ page }) => {
-    await page.route('**/api/v1/analysis', (route) => {
+    await page.route(/\/api\/v1\/analysis(\?.*)?$/, (route) => {
       if (route.request().method() === 'POST') {
         route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(mockResult) })
       } else {

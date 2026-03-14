@@ -7,6 +7,8 @@ import com.prdbreaker.domain.PrdAnalysis;
 import com.prdbreaker.dto.response.PrdAnalysisResponse;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.*;
 
 class AiResponseMapperTest {
@@ -103,6 +105,26 @@ class AiResponseMapperTest {
 
         assertThat(response.getTestChecklist().get(0).isUncertain()).isTrue();
         assertThat(response.getReleaseChecklist().get(0).isUncertain()).isFalse();
+    }
+
+    @Test
+    void toResponse_entityMetadata_mappedCorrectly() {
+        LocalDateTime fixedTime = LocalDateTime.of(2026, 3, 15, 10, 0, 0);
+        String json = "{\"features\":[],\"userStories\":[],\"todos\":[],\"apiDrafts\":[],\"dbDrafts\":[],\"testChecklist\":[],\"releaseChecklist\":[],\"uncertainItems\":[]}";
+        PrdAnalysis entity = PrdAnalysis.builder()
+                .id(99L)
+                .prdInput("test prd")
+                .status(AnalysisStatus.COMPLETED)
+                .resultJson(json)
+                .createdAt(fixedTime)
+                .useful(true)
+                .build();
+
+        PrdAnalysisResponse response = mapper.toResponse(entity);
+
+        assertThat(response.getId()).isEqualTo(99L);
+        assertThat(response.getCreatedAt()).isEqualTo(fixedTime);
+        assertThat(response.getUseful()).isTrue();
     }
 
     @Test

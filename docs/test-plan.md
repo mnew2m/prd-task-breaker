@@ -18,14 +18,20 @@
 ### Test Cases
 1. 유효한 PRD → 200 + 9개 섹션 응답
 2. 빈 입력 → 400 Bad Request
-3. 너무 짧은 입력 (< 50자) → 400
-4. 단어 수 부족 입력 (5개 미만) → 400
+3. 너무 짧은 입력 (< 50자, 단어 1개) → 400
+4. 단어 수 부족 입력 (정확히 4개 단어) → 400
 5. 반복 문자 입력 (단일 문자 50%+) → 400
-6. AI 실패 → 500 + 에러 메시지
-7. 존재하지 않는 id 조회 → 404
-8. 피드백 useful=true/false → 200, DB 저장 확인
-9. 완료되지 않은 분석에 피드백 → 500
-10. useful 필드 누락된 피드백 요청 → 400
+6. 반복 문자 정확히 50% 경계값 → 400
+7. AI 실패 → 500 + 에러 메시지, DB에 FAILED 상태 저장
+8. 존재하지 않는 id 조회 → 404
+9. PENDING/FAILED 상태 id 조회 → 500
+10. 피드백 useful=true/false → 200, DB 저장 확인
+11. 완료되지 않은 분석(PENDING/FAILED)에 피드백 → 500
+12. useful 필드 누락된 피드백 요청 → 400
+13. `createdAt` ISO 문자열 직렬화 확인 (배열 형식 아님)
+14. `limit` 파라미터 범위 검증 (0, -1, 200 → 400)
+15. AiResponseMapper 엔티티 메타데이터(id, createdAt, useful) 매핑 정확성
+16. CORS preflight PATCH 요청 → Access-Control-Allow-Methods에 PATCH 포함
 
 ## Frontend Tests
 

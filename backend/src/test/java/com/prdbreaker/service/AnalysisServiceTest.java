@@ -246,6 +246,19 @@ class AnalysisServiceTest {
     }
 
     @Test
+    void submitFeedback_failedEntity_throwsAiProcessingException() {
+        PrdAnalysis failed = PrdAnalysis.builder()
+                .prdInput(VALID_PRD)
+                .status(AnalysisStatus.FAILED)
+                .build();
+        when(repository.findById(4L)).thenReturn(Optional.of(failed));
+
+        assertThatThrownBy(() -> analysisService.submitFeedback(4L, true))
+                .isInstanceOf(AiProcessingException.class)
+                .hasMessageContaining("FAILED");
+    }
+
+    @Test
     void getRecent_passesLimitToRepository() {
         when(repository.findByStatusOrderByCreatedAtDesc(eq(AnalysisStatus.COMPLETED), any(Pageable.class)))
                 .thenReturn(Collections.emptyList());

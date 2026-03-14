@@ -116,4 +116,42 @@ class PrdAnalysisRepositoryTest {
 
         assertThat(results).hasSize(3);
     }
+
+    @Test
+    void findByStatusOrderByCreatedAtDesc_returnsResultsInDescOrder() {
+        PrdAnalysis first = PrdAnalysis.builder().prdInput("PRD A").status(AnalysisStatus.COMPLETED).build();
+        PrdAnalysis second = PrdAnalysis.builder().prdInput("PRD B").status(AnalysisStatus.COMPLETED).build();
+        PrdAnalysis third = PrdAnalysis.builder().prdInput("PRD C").status(AnalysisStatus.COMPLETED).build();
+        repository.save(first);
+        repository.save(second);
+        repository.save(third);
+
+        List<PrdAnalysis> results = repository.findByStatusOrderByCreatedAtDesc(
+                AnalysisStatus.COMPLETED, PageRequest.of(0, 10));
+
+        assertThat(results).hasSize(3);
+        // 가장 나중에 저장된 항목이 먼저 반환되어야 한다
+        for (int i = 0; i < results.size() - 1; i++) {
+            assertThat(results.get(i).getCreatedAt())
+                    .isAfterOrEqualTo(results.get(i + 1).getCreatedAt());
+        }
+    }
+
+    @Test
+    void findByStatusOrderByCreatedAtDesc_failedAndPendingExcluded() {
+        PrdAnalysis completed = PrdAnalysis.builder().prdInput("완료").status(AnalysisStatus.COMPLETED).build();
+        PrdAnalysis failed = PrdAnalysis.builder().prdInput("실패").status(AnalysisStatus.FAILED).build();
+        PrdAnalysis pending = PrdAnalysis.builder().prdInput("대기").status(AnalysisStatus.PENDING).build();
+        repository.save(completed);
+        repository.save(failed);
+        repository.save(pending);
+
+        List<PrdAnalysis> results = repository.findByStatusOrderByCreatedAtDesc(
+                AnalysisStatus.COMPLETED, PageRequest.of(0, 10));
+
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getStatus()).isEqualTo(AnalysisStatus.COMPLETED);
+        assertThat(results).noneMatch(e -> e.getStatus() == AnalysisStatus.FAILED);
+        assertThat(results).noneMatch(e -> e.getStatus() == AnalysisStatus.PENDING);
+    }
 }

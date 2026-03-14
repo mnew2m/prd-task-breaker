@@ -80,4 +80,31 @@ class AnalysisIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"));
     }
+
+    @Test
+    void fullFlow_submitFeedback_updatesUseful() throws Exception {
+        // 1. Analyze
+        String responseJson = mockMvc.perform(post("/api/v1/analysis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"prdContent\": \"" + VALID_PRD + "\"}"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        @SuppressWarnings("unchecked")
+        long id = ((Number) objectMapper.readValue(responseJson, Map.class).get("id")).longValue();
+
+        // 2. Submit feedback (useful = true)
+        mockMvc.perform(patch("/api/v1/analysis/{id}/feedback", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"useful\": true}"))
+                .andExpect(status().isOk());
+
+        // 3. Verify useful field is reflected in GET response
+        mockMvc.perform(get("/api/v1/analysis/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.useful").value(true));
+    }
 }

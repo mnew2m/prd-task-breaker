@@ -73,6 +73,36 @@ class AnalysisControllerTest {
     }
 
     @Test
+    void postAnalysis_tooShortContent_returns400() throws Exception {
+        // 49자 단일 토큰 입력 — 단어 수 1개로 @ValidPrdContent 최소 5개 단어 조건 미충족 → 400
+        String shortContent = "가".repeat(49);
+        mockMvc.perform(post("/api/v1/analysis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"prdContent\": \"" + shortContent + "\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void postAnalysis_repetitiveContent_returns400() throws Exception {
+        // 반복 문자 — @ValidPrdContent 에 의해 400
+        String repetitive = "aaaaaaaaaa ".repeat(10);
+        mockMvc.perform(post("/api/v1/analysis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"prdContent\": \"" + repetitive + "\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void postAnalysis_tooFewWords_returns400() throws Exception {
+        // 단어 4개 이하 — @ValidPrdContent 최소 5개 단어 조건 미충족으로 400
+        String fewWords = "하나 둘 셋 넷";
+        mockMvc.perform(post("/api/v1/analysis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"prdContent\": \"" + fewWords + "\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void postAnalysis_aiFailure_returns500() throws Exception {
         String validPrd = "이것은 충분히 긴 PRD 내용입니다. ".repeat(5);
         when(analysisService.analyze(anyString()))

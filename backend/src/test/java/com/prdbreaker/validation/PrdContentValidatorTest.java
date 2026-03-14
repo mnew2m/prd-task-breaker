@@ -74,6 +74,27 @@ class PrdContentValidatorTest {
     }
 
     @Test
+    void invalid_exactlyFourWords_fails() {
+        // 4개 단어 — MIN_WORD_COUNT(5) 미달로 실패
+        var req = new Request("하나 둘 셋 넷");
+        Set<ConstraintViolation<Request>> violations = validator.validate(req);
+        assertThat(violations).hasSize(1);
+        assertThat(violations.iterator().next().getMessage())
+                .contains("최소 5개");
+    }
+
+    @Test
+    void invalid_exactlyFiftyPercentRepetition_fails() {
+        // "aa aa ab bc cd" → 공백 제거: a,a,a,a,a,b,b,c,c,d = 10자, a=5 → 5/10 = 50%
+        // MAX_SINGLE_CHAR_RATIO >= 0.5 이므로 정확히 50%도 실패, 단어 5개 충족
+        var req = new Request("aa aa ab bc cd");
+        Set<ConstraintViolation<Request>> violations = validator.validate(req);
+        assertThat(violations).hasSize(1);
+        assertThat(violations.iterator().next().getMessage())
+                .contains("반복 문자");
+    }
+
+    @Test
     void valid_exactlyFiveWords_passes() {
         var req = new Request("하나 둘 셋 넷 다섯");
         assertThat(validator.validate(req)).isEmpty();

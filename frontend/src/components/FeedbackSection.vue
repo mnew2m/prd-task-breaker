@@ -13,7 +13,7 @@
         class="feedback-btn"
         :class="{ selected: feedbackValue === false, submitted: feedbackSubmitted }"
         :disabled="feedbackSubmitted || isFeedbackSubmitting"
-        aria-label="유용하지 않음"
+        aria-label="아쉬움"
         @click="submitFeedback(false)"
       >👎 아쉬움</button>
     </div>
