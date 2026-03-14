@@ -1,10 +1,35 @@
 <template>
   <div class="loading-state" role="status" aria-live="polite">
-    <div class="spinner"></div>
+    <div class="spinner" aria-hidden="true"></div>
     <p>AI가 PRD를 분석하고 있습니다...</p>
     <p class="hint">최대 30초 정도 소요될 수 있습니다</p>
+    <button class="cancel-btn" @click="showConfirm = true">
+      분석 취소
+    </button>
   </div>
+
+  <ConfirmDialog
+    :is-open="showConfirm"
+    title="분석을 취소하시겠습니까?"
+    message="취소하면 진행 중인 분석이 중단됩니다. 다시 분석 요청을 해야 합니다."
+    @confirm="handleConfirm"
+    @cancel="showConfirm = false"
+  />
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import ConfirmDialog from './ConfirmDialog.vue'
+
+const emit = defineEmits<{ cancel: [] }>()
+
+const showConfirm = ref(false)
+
+function handleConfirm() {
+  showConfirm.value = false
+  emit('cancel')
+}
+</script>
 
 <style scoped>
 .loading-state {
@@ -38,5 +63,22 @@ p {
 .hint {
   font-size: 0.875rem;
   color: #999;
+  margin-bottom: 1.5rem;
+}
+
+.cancel-btn {
+  padding: 0.5rem 1.4rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  color: #666;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cancel-btn:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
 }
 </style>

@@ -14,7 +14,7 @@
           :is-loading="isLoading"
           @analyze="analyze"
         />
-        <LoadingState v-if="isLoading" />
+        <LoadingState v-if="isLoading" @cancel="reset" />
         <ErrorState v-else-if="error" :message="error" @retry="reset" />
         <AnalysisHistory
           :recent-list="recentList"
