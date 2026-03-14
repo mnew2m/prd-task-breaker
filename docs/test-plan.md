@@ -59,15 +59,30 @@
 실행: `cd frontend && npm run test:e2e`
 CI: `frontend-e2e` 잡 (Chromium만), 결과는 `playwright-report/` 아티팩트로 저장
 
-## 성능 테스트 계획
+## 성능 테스트
 
-실행 환경: 스테이징 또는 로컬 (백엔드 구동 필요)
+실행 환경: 로컬 또는 스테이징 (백엔드 구동 필요)
 
-| 시나리오 | 도구 | 목표 |
-|---------|------|------|
-| AI 분석 P95 응답시간 | k6 (`perf/load-test.js`) | 30초 이내 |
-| 동시 5명 분석 요청 | k6 VU=5 | 타임아웃·에러 없음 |
-| 페이지 초기 로드 (FCP) | Lighthouse CI | 2초 이내 |
+스크립트: `perf/load-test.js`
+
+```bash
+# k6 설치 (macOS)
+brew install k6
+
+# 실행 (백엔드가 localhost:8080에서 동작 중이어야 함)
+k6 run perf/load-test.js
+
+# 다른 서버 대상
+k6 run -e BASE_URL=https://staging.example.com perf/load-test.js
+```
+
+| 시나리오 | 도구 | 설정 | 목표 |
+|---------|------|------|------|
+| AI 분석 P95 응답시간 | k6 (`perf/load-test.js`) | VU=1, 3회 반복 | 30초 이내 |
+| 동시 5명 분석 요청 | k6 (`perf/load-test.js`) | VU=5, 각 1회 | 타임아웃·에러 없음 |
+| 페이지 초기 로드 (FCP) | Lighthouse CI | — | 2초 이내 |
+
+thresholds: `analysis_duration p(95)<30000`, `error_rate==0`, `http_req_failed==0`
 
 ## 보안 테스트 항목
 

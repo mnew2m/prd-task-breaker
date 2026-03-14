@@ -421,3 +421,42 @@ AI가 복잡한 PRD에서 모든 항목을 추출하지 못할 수 있음을 사
 - `Toast.test.ts` 신규 작성 (8개): 초기 빈 상태, 메시지 렌더링, success/error/info 클래스, 다수 동시 렌더링, aria-live, duration 후 자동 제거
 - `AnalysisResult.test.ts` 추가 (4개): result-notice 존재, 복사 버튼 표시/숨김, clipboard.writeText 호출 검증
 - `useAnalysis.test.ts` 추가 (1개): 분석 성공 시 토스트 메시지('분석이 완료되었습니다') 확인 + afterEach 토스트 초기화 추가
+
+---
+
+## 2026-03-15 - k6 성능 테스트 구현
+
+> 관련 커밋: (이번 커밋)
+
+### 배경
+
+테스트 계획(`docs/test-plan.md`)에 k6 성능 테스트 시나리오가 문서로만 정의되어 있었고, 실제 스크립트 파일이 없었다. 계획과 구현 사이의 간극을 해소하기 위해 `perf/load-test.js`를 작성했다.
+
+### 수행 내용
+
+**`perf/load-test.js` 신규 작성**
+
+두 가지 k6 시나리오를 `scenarios` 블록으로 분리해 단일 스크립트에서 순차 실행:
+
+1. `single_analysis` — VU=1, 3회 반복: P95 응답시간 30초 이내 검증
+2. `concurrent_analysis` — VU=5, 동시 각 1회: 타임아웃·에러율 0% 검증 (20초 뒤 시작)
+
+thresholds:
+- `analysis_duration p(95)<30000` (커스텀 Trend 메트릭)
+- `error_rate==0` (커스텀 Rate 메트릭)
+- `http_req_failed==0`
+
+**실행 방법**
+```bash
+# 로컬 백엔드 대상
+k6 run perf/load-test.js
+
+# 다른 서버 대상
+k6 run -e BASE_URL=https://staging.example.com perf/load-test.js
+```
+
+### 설계 결정
+
+- 실제 분량의 한국어 PRD 샘플(`SAMPLE_PRD`)을 request body에 포함해 AI 처리 시간을 현실적으로 측정
+- `BASE_URL` 환경변수로 로컬/스테이징 전환 가능하게 구성
+- 각 요청 후 `sleep(1)`로 서버 과부하 방지 (성능 측정 목적이 아닌 안정성 확인 시나리오)
