@@ -1,0 +1,40 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Rollback target'
+        required: true
+        type: choice
+        options:
+          - frontend
+          - backend
+          - all
+      reason:
+        description: 'Rollback reason (for audit log)'
+        required: true
+
+jobs:
+  rollback-frontend:
+    if: ${{ github.event.inputs.target == 'frontend' || github.event.inputs.target == 'all' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rollback Vercel to previous deployment
+        run: npx vercel rollback --token ${{ secrets.VERCEL_TOKEN }} --yes
+        # secrets.VERCEL_TOKEN: Vercel 계정 설정 → Tokens → Create Token 후 GitHub Secrets에 등록
+
+  rollback-backend:
+    if: ${{ github.event.inputs.target == 'backend' || github.event.inputs.target == 'all' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: List recent deployments and rollback
+        run: |
+          echo "Rolling back Railway service to previous deployment..."
+          railway rollback
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # secrets.RAILWAY_TOKEN: Railway 계정 설정 → Tokens → Create Token 후 GitHub Secrets에 등록

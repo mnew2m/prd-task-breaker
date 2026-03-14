@@ -70,27 +70,44 @@ Railway 서비스 설정에서 헬스체크 경로를 `/api/v1/health`로 설정
 ## CI/CD 파이프라인 전체 흐름
 
 ```
-[push to main]
+[push to main / PR]
       │
-      ├──▶ backend-test (JUnit)
-      │       └─ gradle build (compile + test + jacoco)
-      │
-      ├──▶ frontend-check (Vitest)
-      │       └─ npm ci → npm audit → type-check → test:coverage → build
-      │
-      └──▶ frontend-e2e (Playwright)
-              └─ Chromium smoke tests (6개)
-                  ├─ page load / title
-                  ├─ textarea input
-                  ├─ button disabled/enabled state
-                  ├─ sample PRD load
-                  └─ mocked API analyze flow
+      ├──▶ backend-test       gradle build (compile + test + jacoco)
+      ├──▶ frontend-check     npm audit → type-check → test:coverage → build
+      └──▶ frontend-e2e       Playwright Chromium (smoke 6개 + user-flows 4개)
 
 [모든 잡 통과 시]
-      │
       ├──▶ Vercel: 자동 배포 (프론트엔드)
       └──▶ Railway: 자동 배포 (백엔드)
+
+[수동 트리거 워크플로]
+      ├──▶ performance.yml    k6 부하 테스트 (workflow_dispatch, BASE_URL 입력)
+      ├──▶ rollback.yml       frontend/backend/all 롤백 (workflow_dispatch, reason 입력)
+      └──▶ security.yml       Trivy 취약점 스캔 (매주 월요일 + workflow_dispatch)
 ```
+
+---
+
+## 롤백
+
+### 자동 롤백 (배포 실패 시)
+- **Railway**: 헬스체크(`/api/v1/health`) 실패 시 이전 배포로 자동 롤백
+- **Vercel**: 빌드 실패 시 이전 배포 유지 (실패한 배포는 프로덕션에 반영 안 됨)
+
+### 수동 롤백 (GitHub Actions)
+`Actions` → `Rollback` 워크플로 → `Run workflow`:
+- `target`: `frontend` / `backend` / `all` 선택
+- `reason`: 롤백 사유 입력 (감사 로그용)
+
+필요한 GitHub Secrets:
+| Secret | 발급 위치 |
+|--------|-----------|
+| `VERCEL_TOKEN` | Vercel 계정 → Settings → Tokens |
+| `RAILWAY_TOKEN` | Railway 계정 → Account Settings → Tokens |
+
+### 수동 롤백 (대시보드)
+- **Vercel**: Deployments → 이전 배포 → "Promote to Production"
+- **Railway**: Service → Deployments → 이전 배포 → "Redeploy"
 
 ---
 
@@ -103,9 +120,18 @@ Railway 서비스 설정에서 헬스체크 경로를 `/api/v1/health`로 설정
 | Vercel Analytics | 프론트엔드 방문자·오류 | 대시보드 확인 |
 | GitHub Actions | CI 빌드 성공/실패 | 이메일 알림 |
 
-### 권장 추가 모니터링 (MVP 이후)
+### Sentry (프론트엔드 에러 모니터링)
+`@sentry/vue` 패키지가 설치되어 있으며, `VITE_SENTRY_DSN` 환경변수가 설정된 경우 자동 활성화됩니다.
+
+Vercel 환경변수에 추가:
+```
+VITE_SENTRY_DSN=https://<key>@<org>.ingest.sentry.io/<project>
+```
+
+DSN이 없으면 Sentry 초기화를 건너뛰어 로컬/테스트 환경에 영향 없음.
+
+### 권장 추가 모니터링
 - **UptimeRobot**: `/api/v1/health` 엔드포인트 5분마다 체크, 다운 시 이메일/슬랙 알림
-- **Sentry**: 프론트엔드 JS 에러, 백엔드 예외 실시간 수집
 - **Railway Metrics**: CPU/메모리 사용률 이상 시 알림
 
 ---

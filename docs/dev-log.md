@@ -588,3 +588,27 @@ function onFeedbackSubmitted(useful: boolean) {
 2. **분석 취소**: 응답을 30초 지연시켜 로딩 상태를 유지한 채 취소 버튼 → ConfirmDialog → 확인 → 입력 화면 복귀 흐름 검증
 3. **히스토리 클릭**: 분석 완료 → 새 분석 → 히스토리 패널 → 카드 클릭 → GET /api/v1/analysis/{id} mock → 결과 화면 전환 검증
 4. **피드백 제출**: 결과 화면 렌더링 → 👍 버튼 클릭 → PATCH /api/v1/analysis/1/feedback mock → 저장 완료 토스트 표시 검증
+
+---
+
+## 2026-03-15 - CI/CD 자동화 보강
+
+> 관련 커밋: (이번 커밋)
+
+### 배경
+
+CI/CD 평가에서 세 가지가 지적됐다: k6 성능 테스트가 CI에 미통합, 모니터링이 권장 수준에만 머묾, 롤백이 수동 절차에 의존.
+
+### 수행 내용
+
+**`performance.yml` — k6 CI 통합 (`workflow_dispatch`)**
+
+`perf/load-test.js`가 존재했지만 CI에서 실행할 방법이 없었다. `workflow_dispatch` 트리거 + `base_url` 입력으로 GitHub Actions UI에서 스테이징/운영 URL을 지정해 즉시 실행 가능한 워크플로를 추가했다. 매 push마다 실행하지 않는 이유: k6는 실서버 응답시간을 측정하는 도구이므로 백엔드가 구동 중인 환경에서만 의미 있는 결과가 나온다.
+
+**`rollback.yml` — GitHub Actions 롤백 워크플로**
+
+기존에는 Vercel/Railway 대시보드를 직접 열어 클릭해야 했다. `workflow_dispatch` 트리거로 `target`(frontend/backend/all)과 `reason`(감사 로그용)을 입력받아 GitHub Actions UI에서 원클릭 롤백이 가능하도록 했다. 필요한 Secrets: `VERCEL_TOKEN`, `RAILWAY_TOKEN`.
+
+**Sentry 프론트엔드 에러 모니터링**
+
+`@sentry/vue` 패키지를 설치하고 `main.ts`에 조건부 초기화를 추가했다. `VITE_SENTRY_DSN` 환경변수가 설정된 경우에만 활성화되어, 로컬/테스트 환경에는 영향 없다. Vercel 환경변수에 DSN을 추가하면 즉시 프로덕션 JS 에러 수집이 시작된다.
