@@ -134,6 +134,6 @@ test.describe('PRD Task Breaker — user flows', () => {
 
     // 👍 클릭 후 버튼 비활성화 확인
     await page.getByRole('button', { name: /유용함/ }).click()
-    await expect(page.getByText('피드백이 저장되었습니다')).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByRole('status').filter({ hasText: '피드백이 저장되었습니다' })).toBeVisible({ timeout: 5_000 })
   })
 })
