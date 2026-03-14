@@ -81,7 +81,8 @@ class AnalysisControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"prdContent\": \"" + validPrd + "\"}"))
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.status").value(500));
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.message").value("AI 분석 처리에 실패했습니다. 잠시 후 다시 시도해주세요."));
     }
 
     // ── GET /api/v1/analysis/{id} ─────────────────────────────────────────
@@ -148,12 +149,21 @@ class AnalysisControllerTest {
     }
 
     @Test
-    void getRecent_limitCappedAt100() throws Exception {
-        // limit=200 → service receives min(200,100) = 100
-        when(analysisService.getRecent(100)).thenReturn(Collections.emptyList());
-
+    void getRecent_limitAbove100_returns400() throws Exception {
         mockMvc.perform(get("/api/v1/analysis").param("limit", "200"))
-                .andExpect(status().isOk());
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getRecent_negativelimit_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/analysis").param("limit", "-1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getRecent_zeroLimit_returns400() throws Exception {
+        mockMvc.perform(get("/api/v1/analysis").param("limit", "0"))
+                .andExpect(status().isBadRequest());
     }
 
     // ── createdAt 직렬화 형식 ──────────────────────────────────────────────
