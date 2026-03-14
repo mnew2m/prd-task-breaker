@@ -591,6 +591,54 @@ function onFeedbackSubmitted(useful: boolean) {
 
 ---
 
+## 2026-03-15 - 프론트엔드 테스트 커버리지 보강 및 E2E 버그 수정
+
+> 관련 커밋: `592dd6f`, `1058e8e`
+
+### 배경
+
+E2E 테스트 실행 결과 2개 케이스가 실패한 채로 CI에 머물러 있었다. 동시에 프론트엔드 테스트 커버리지 분석에서 기존 테스트 파일의 edge case 미커버 및 8개 display 컴포넌트 테스트 파일 전무 상태가 확인됐다.
+
+### E2E 버그 수정 3건
+
+**1. history card 테스트: route 패턴이 쿼리스트링 포함 URL에 매칭 안 됨**
+
+`page.route('**/api/v1/analysis', ...)` 패턴은 `GET /api/v1/analysis?limit=3`에 매칭되지 않는다. Playwright의 glob 패턴이 쿼리스트링을 URL 전체의 일부로 처리하기 때문에 `?limit=3` 접미사가 있으면 매칭 실패로 ECONNREFUSED 처리 → `recentList = []` → 히스토리 카드가 렌더링되지 않아 테스트 실패.
+
+`/\/api\/v1\/analysis(\?.*)?$/` 정규식으로 변경해 쿼리스트링 유무와 관계없이 매칭하도록 수정했다.
+
+**2. feedback 버튼 테스트: `aria-label`이 Playwright 접근 가능명으로 사용됨**
+
+`getByRole('button', { name: /아쉬움/ })`이 `aria-label="유용하지 않음"` 버튼을 찾지 못했다. Playwright는 버튼의 접근 가능명(accessible name)을 텍스트 콘텐츠 대신 `aria-label` 우선으로 계산하기 때문이다. `FeedbackSection.vue`의 `aria-label="유용하지 않음"` → `aria-label="아쉬움"`으로 변경했다.
+
+**3. feedback 토스트 테스트: strict mode 위반 (2개 요소 매칭)**
+
+`getByText('피드백이 저장되었습니다')`가 Toast 컴포넌트(`role="status"`)와 `FeedbackSection`의 `.feedback-done` 두 곳에 동시 매칭됐다. Playwright strict mode에서 1개 요소가 아닌 복수 매칭 시 에러 발생. `getByRole('status').filter({ hasText: '피드백이 저장되었습니다' })`로 Toast만 정확히 타겟하도록 수정했다.
+
+### 기존 테스트 파일 edge case 보완
+
+| 파일 | 추가 케이스 |
+|------|------------|
+| `useAnalysis.test.ts` | 연속 `analyze()` 호출 시 이전 요청 AbortSignal이 abort되는지 검증, `loadRecent()` 실패 시 기존 `recentList` 보존(덮어쓰지 않음) |
+| `FeedbackSection.test.ts` | `isFeedbackSubmitting` 플래그로 연속 클릭 시 API가 1회만 호출되는지 검증, 성공 토스트 메시지 정확한 문자열 검증 |
+| `AnalysisResult.test.ts` | README 복사 성공 시 성공 토스트 표시, 클립보드 거부 시 에러 토스트 표시, 전체 섹션이 빈 배열+`readmeDraft=null`일 때 정상 렌더링 |
+| `AnalysisHistory.test.ts` | `@keydown.enter` / `@keydown.space` 키보드 네비게이션으로 `select` 이벤트 발생 검증 |
+| `PdfExportButton.test.ts` | `isGenerating=true` 상태에서 취소 버튼·오버레이 클릭 모두 모달이 닫히지 않는지 검증 |
+
+### E2E 시나리오 3개 추가 (user-flows.spec.ts)
+
+백엔드 없이 `page.route()` mock으로 검증:
+1. **PDF 내보내기**: PDF 저장 → `role="dialog"` 모달 열림 → 취소로 닫힘
+2. **섹션 순서 변경**: 순서변경 → `role="dialog"` 모달 열림 → 적용 → 결과 화면 유지
+3. **README 복사**: `context.grantPermissions(['clipboard-write'])` 후 복사 클릭 → `role="status"` 토스트 표시
+
+### 신규 테스트 파일 9개
+
+- `sections.test.ts`: `DEFAULT_SECTION_ORDER` / `SECTION_LABELS` 상수 검증 (8개 키, 중복 없음, 레이블 완전성)
+- Display 컴포넌트 8개 (`FeatureList`, `UserStories`, `TodoBreakdown`, `ApiDraft`, `DbDraft`, `TestChecklist`, `ReleaseChecklist`, `UncertainItems`): 각각 빈 상태 표시, 데이터 렌더링, 조건부 요소(notes, uncertain, requestBody 등) 검증
+
+---
+
 ## 2026-03-15 - CI/CD 자동화 보강
 
 > 관련 커밋: (이번 커밋)
