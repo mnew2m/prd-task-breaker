@@ -104,7 +104,14 @@ analyze() 호출
 
 ### Data Model
 Single entity `PrdAnalysis` stores entire result as JSON (`resultJson TEXT`).
-Avoids complex relational mapping for MVP; enables schema evolution without migrations.
+Avoids complex relational mapping for MVP; AI response schema can evolve without table-level migrations.
+
+Schema is managed by **Flyway** (`db/migration/`):
+- `V1__init.sql` — initial `prd_analysis` table
+- `V2__add_useful_column.sql` — feedback column added when the feature was introduced
+
+dev 환경은 H2 인메모리 + `flyway.enabled: false`, prod 환경은 PostgreSQL + Flyway 활성화 + `ddl-auto: validate`.
+Flyway는 피드백 기능 추가(V2)가 첫 번째 실질적 스키마 변경이 되는 시점에 도입했다. 초기에는 단일 엔티티 하나로 `ddl-auto: update`로 충분했으나, 스키마 변경이 코드 이력 밖에서 수동 실행되는 패턴을 방지하기 위해 이 시점에 명시적 관리로 전환했다.
 
 ### Synchronous REST
 MVP uses synchronous POST. Response time target: <30s.
