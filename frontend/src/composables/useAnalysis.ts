@@ -1,12 +1,14 @@
 import { ref, computed } from 'vue'
 import { analysisApi } from '../api/analysisApi'
 import type { PrdAnalysisResponse } from '../types/analysis'
+import type { ApiError } from '../types/api'
 
 export function useAnalysis() {
   const result = ref<PrdAnalysisResponse | null>(null)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const recentList = ref<PrdAnalysisResponse[]>([])
+  const abortController = ref<AbortController | null>(null)
 
   const hasResult = computed(() => result.value !== null)
 
@@ -16,16 +18,24 @@ export function useAnalysis() {
       return
     }
 
+    // Abort any in-flight request before starting a new one
+    abortController.value?.abort()
+    abortController.value = new AbortController()
+
     isLoading.value = true
     error.value = null
     result.value = null
 
     try {
-      result.value = await analysisApi.analyze({ prdContent })
+      result.value = await analysisApi.analyze({ prdContent }, abortController.value.signal)
       await loadRecent()
     } catch (e: unknown) {
+      // Ignore aborted requests
+      if (e && typeof e === 'object' && 'code' in e && (e as { code: string }).code === 'ERR_CANCELED') {
+        return
+      }
       if (e && typeof e === 'object' && 'response' in e) {
-        const axiosError = e as { response?: { data?: { message?: string } } }
+        const axiosError = e as { response?: { data?: ApiError } }
         error.value = axiosError.response?.data?.message ?? 'AI 분석 중 오류가 발생했습니다.'
       } else {
         error.value = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'
@@ -56,6 +66,8 @@ export function useAnalysis() {
   }
 
   function reset() {
+    abortController.value?.abort()
+    abortController.value = null
     result.value = null
     error.value = null
     isLoading.value = false

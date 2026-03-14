@@ -11,8 +11,8 @@ const apiClient = axios.create({
 })
 
 export const analysisApi = {
-  analyze(request: PrdAnalysisRequest): Promise<PrdAnalysisResponse> {
-    return apiClient.post<PrdAnalysisResponse>('/analysis', request).then(r => r.data)
+  analyze(request: PrdAnalysisRequest, signal?: AbortSignal): Promise<PrdAnalysisResponse> {
+    return apiClient.post<PrdAnalysisResponse>('/analysis', request, { signal }).then(r => r.data)
   },
 
   getById(id: number): Promise<PrdAnalysisResponse> {

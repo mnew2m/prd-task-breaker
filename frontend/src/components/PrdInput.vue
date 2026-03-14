@@ -33,6 +33,7 @@
       placeholder="PRD 내용을 입력하세요 (최소 50자)..."
       :disabled="isLoading"
       rows="12"
+      aria-label="PRD 내용 입력 (최소 50자)"
     />
 
     <div class="input-footer">
@@ -123,10 +124,14 @@ const TEMPLATE_TEXT = `# [프로젝트명] PRD
 - [불확실하거나 추후 결정할 사항]`
 
 async function copyTemplate() {
-  await navigator.clipboard.writeText(TEMPLATE_TEXT)
-  copied.value = true
+  try {
+    await navigator.clipboard.writeText(TEMPLATE_TEXT)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  } catch (e) {
+    console.warn('클립보드 복사 실패:', e)
+  }
   menuOpen.value = false
-  setTimeout(() => { copied.value = false }, 2000)
 }
 
 const SAMPLE_PRD = `# 온라인 쇼핑몰 PRD

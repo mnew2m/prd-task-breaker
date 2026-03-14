@@ -1,6 +1,11 @@
 import { ref } from 'vue'
+import type { jsPDF } from 'jspdf'
 import type { PrdAnalysisResponse } from '../types/analysis'
 import { loadNotoSansKR } from '../assets/fonts/NotoSansKR-Regular-base64'
+
+interface JsPDFWithAutoTable extends jsPDF {
+  lastAutoTable: { finalY: number }
+}
 
 export type SectionKey =
   | 'features'
@@ -59,7 +64,7 @@ export function usePdfExport() {
         import('jspdf-autotable'),
       ])
 
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }) as JsPDFWithAutoTable
 
       // Register Korean font if available (TTF only — WOFF/WOFF2 is rejected by loader)
       let fontFamily = 'helvetica'
@@ -150,7 +155,7 @@ export function usePdfExport() {
             y = data.cursor?.y ?? y
           },
         })
-        y = (doc as any).lastAutoTable.finalY + 8
+        y = doc.lastAutoTable.finalY + 8
       }
 
       // ── User Stories ─────────────────────────────────────────────
@@ -192,7 +197,7 @@ export function usePdfExport() {
           },
           margin: { left: margin, right: margin },
         })
-        y = (doc as any).lastAutoTable.finalY + 8
+        y = doc.lastAutoTable.finalY + 8
       }
 
       // ── API Drafts ────────────────────────────────────────────────
@@ -207,7 +212,7 @@ export function usePdfExport() {
           columnStyles: { 0: { cellWidth: 20 }, 1: { cellWidth: 55 }, 2: { cellWidth: 'auto' } },
           margin: { left: margin, right: margin },
         })
-        y = (doc as any).lastAutoTable.finalY + 8
+        y = doc.lastAutoTable.finalY + 8
       }
 
       // ── DB Drafts ─────────────────────────────────────────────────
@@ -234,7 +239,7 @@ export function usePdfExport() {
           columnStyles: { 0: { cellWidth: 'auto' }, 1: { cellWidth: 35 } },
           margin: { left: margin, right: margin },
         })
-        y = (doc as any).lastAutoTable.finalY + 8
+        y = doc.lastAutoTable.finalY + 8
       }
 
       // ── Release Checklist ─────────────────────────────────────────
@@ -249,7 +254,7 @@ export function usePdfExport() {
           columnStyles: { 0: { cellWidth: 'auto' }, 1: { cellWidth: 35 } },
           margin: { left: margin, right: margin },
         })
-        y = (doc as any).lastAutoTable.finalY + 8
+        y = doc.lastAutoTable.finalY + 8
       }
 
       // ── Uncertain Items ───────────────────────────────────────────
