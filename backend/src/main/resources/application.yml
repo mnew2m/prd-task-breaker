@@ -52,6 +52,8 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
 
 ai:
   provider: claude
