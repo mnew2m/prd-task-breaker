@@ -6,6 +6,7 @@ import type { ApiError } from '../types/api'
 export function useAnalysis() {
   const result = ref<PrdAnalysisResponse | null>(null)
   const isLoading = ref(false)
+  const loadingMode = ref<'analyze' | 'load' | null>(null)
   const error = ref<string | null>(null)
   const recentList = ref<PrdAnalysisResponse[]>([])
   const abortController = ref<AbortController | null>(null)
@@ -23,6 +24,7 @@ export function useAnalysis() {
     abortController.value = new AbortController()
 
     isLoading.value = true
+    loadingMode.value = 'analyze'
     error.value = null
     result.value = null
 
@@ -42,11 +44,13 @@ export function useAnalysis() {
       }
     } finally {
       isLoading.value = false
+      loadingMode.value = null
     }
   }
 
   async function loadById(id: number) {
     isLoading.value = true
+    loadingMode.value = 'load'
     error.value = null
     try {
       result.value = await analysisApi.getById(id)
@@ -54,6 +58,7 @@ export function useAnalysis() {
       error.value = '분석 결과를 불러올 수 없습니다.'
     } finally {
       isLoading.value = false
+      loadingMode.value = null
     }
   }
 
@@ -71,7 +76,8 @@ export function useAnalysis() {
     result.value = null
     error.value = null
     isLoading.value = false
+    loadingMode.value = null
   }
 
-  return { result, isLoading, error, hasResult, recentList, analyze, loadById, loadRecent, reset }
+  return { result, isLoading, loadingMode, error, hasResult, recentList, analyze, loadById, loadRecent, reset }
 }

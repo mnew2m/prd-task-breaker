@@ -1,11 +1,14 @@
 <template>
   <div class="loading-state" role="status" aria-live="polite">
     <div class="spinner" aria-hidden="true"></div>
-    <p>AI가 PRD를 분석하고 있습니다...</p>
-    <p class="hint">최대 30초 정도 소요될 수 있습니다</p>
-    <button class="cancel-btn" @click="showConfirm = true">
-      분석 취소
-    </button>
+    <p v-if="mode === 'load'">이전 분석 결과를 불러오고 있습니다...</p>
+    <p v-else>AI가 PRD를 분석하고 있습니다...</p>
+    <template v-if="mode !== 'load'">
+      <p class="hint">최대 30초 정도 소요될 수 있습니다</p>
+      <button class="cancel-btn" @click="showConfirm = true">
+        분석 취소
+      </button>
+    </template>
   </div>
 
   <ConfirmDialog
@@ -20,6 +23,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+
+defineProps<{
+  mode?: 'analyze' | 'load' | null
+}>()
 
 const emit = defineEmits<{ cancel: [] }>()
 

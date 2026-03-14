@@ -14,7 +14,7 @@
           :is-loading="isLoading"
           @analyze="analyze"
         />
-        <LoadingState v-if="isLoading" @cancel="reset" />
+        <LoadingState v-if="isLoading" :mode="loadingMode" @cancel="reset" />
         <ErrorState v-else-if="error" :message="error" @retry="reset" />
         <AnalysisHistory
           :recent-list="recentList"
@@ -42,7 +42,7 @@ import LoadingState from './components/LoadingState.vue'
 import ErrorState from './components/ErrorState.vue'
 import AnalysisHistory from './components/AnalysisHistory.vue'
 
-const { result, isLoading, error, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
+const { result, isLoading, loadingMode, error, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
 
 onMounted(() => { loadRecent() })
 </script>
