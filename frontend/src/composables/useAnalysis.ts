@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { analysisApi } from '../api/analysisApi'
+import { isCanceledError, extractApiErrorMessage } from '../utils/errors'
 import type { PrdAnalysisResponse } from '../types/analysis'
-import type { ApiError } from '../types/api'
 
 export function useAnalysis() {
   const result = ref<PrdAnalysisResponse | null>(null)
@@ -32,16 +32,8 @@ export function useAnalysis() {
       result.value = await analysisApi.analyze({ prdContent }, abortController.value.signal)
       await loadRecent()
     } catch (e: unknown) {
-      // Ignore aborted requests
-      if (e && typeof e === 'object' && 'code' in e && (e as { code: string }).code === 'ERR_CANCELED') {
-        return
-      }
-      if (e && typeof e === 'object' && 'response' in e) {
-        const axiosError = e as { response?: { data?: ApiError } }
-        error.value = axiosError.response?.data?.message ?? 'AI 분석 중 오류가 발생했습니다.'
-      } else {
-        error.value = '서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'
-      }
+      if (isCanceledError(e)) return  // 사용자 취소 — 정상 흐름, 에러 표시 없음
+      error.value = extractApiErrorMessage(e) ?? '서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'
     } finally {
       isLoading.value = false
       loadingMode.value = null
