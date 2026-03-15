@@ -53,7 +53,7 @@ export function classifyError(e: unknown): { message: string; hint?: string } {
   }
   if (status >= 500) {
     return {
-      message: 'AI 분석 중 오류가 발생했습니다.',
+      message: serverMessage ?? 'AI 분석 중 오류가 발생했습니다.',
       hint: 'PRD 내용을 줄이거나 잠시 후 다시 시도해주세요.',
     }
   }
