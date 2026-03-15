@@ -153,7 +153,8 @@ jobs:
           done
       - name: Install k6
         run: |
-          curl -sL https://github.com/grafana/k6/releases/latest/download/k6-latest-linux-amd64.tar.gz | tar xz
+          K6_VERSION=$(curl -s https://api.github.com/repos/grafana/k6/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+          curl -sL "https://github.com/grafana/k6/releases/download/${K6_VERSION}/k6-${K6_VERSION}-linux-amd64.tar.gz" | tar xz
           sudo mv k6-*/k6 /usr/local/bin/
       - name: Run k6 performance tests
         run: k6 run --summary-export=k6-summary.json perf/load-test.js

@@ -193,5 +193,6 @@ GitHub Actions (`gradle/actions/setup-gradle@v3`, `gradle-version: 8.13`): push/
 - `frontend-check`: `npm ci` → `npm audit --audit-level=high` → `type-check` → `test:coverage` → `build`
 - `frontend-e2e`: Playwright Chromium — smoke 6개 + user-flows 7개
 - `e2e-integration`: main push 또는 workflow_dispatch 시 실행 — 실제 백엔드 기동 후 `integration.spec.ts` 4개 실행; `e2e-integration-report` 아티팩트 저장
+- `performance`: main push 시 실행 — 실제 백엔드 기동 후 k6 부하 테스트 (P95 < 30s threshold 실패 시 빌드 실패); `k6-results` 아티팩트 저장
 - Dependabot: npm/gradle/github-actions 주 1회(월요일) 자동 의존성 업데이트 PR
 - 배포 파이프라인·롤백·모니터링 상세: `docs/deploy.md` 참조

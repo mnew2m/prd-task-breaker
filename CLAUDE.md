@@ -57,6 +57,9 @@ cd frontend && npm run test:run
 
 # Backend (Docker 또는 시스템 Gradle 필요)
 cd backend && gradle test --no-daemon
+
+# E2E (smoke + user-flows)
+cd frontend && npx playwright test e2e/smoke.spec.ts e2e/user-flows.spec.ts --project=chromium
 ```
 
 ## Out of Scope (MVP)
