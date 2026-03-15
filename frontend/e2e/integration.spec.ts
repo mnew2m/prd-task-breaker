@@ -57,9 +57,12 @@ test.describe('통합 E2E — 실제 백엔드 연동', () => {
     // 결과 화면에서 입력 화면으로 복귀해야 히스토리 패널이 보인다
     await page.getByRole('button', { name: '+ 새 분석' }).click()
 
-    const historyPanel = page.locator('.analysis-history')
-    await expect(historyPanel).toBeVisible({ timeout: 5_000 })
-    const historyItems = historyPanel.locator('.history-card')
+    // 히스토리 토글 버튼 클릭하여 패널 열기
+    const historyToggle = page.getByRole('button', { name: '분석 히스토리' })
+    await expect(historyToggle).toBeVisible({ timeout: 5_000 })
+    await historyToggle.click()
+
+    const historyItems = page.locator('.history-card')
     await expect(historyItems.first()).toBeVisible({ timeout: 5_000 })
   })
 
@@ -80,7 +83,7 @@ test.describe('통합 E2E — 실제 백엔드 연동', () => {
     await expect(thumbsUp).toBeVisible()
     await thumbsUp.click()
 
-    // 성공 토스트 확인
-    await expect(page.getByText('저장되었습니다')).toBeVisible({ timeout: 5_000 })
+    // 성공 토스트 확인 (Toast role="status"로 정확히 타겟, .feedback-done과 구분)
+    await expect(page.getByRole('status').filter({ hasText: '저장되었습니다' })).toBeVisible({ timeout: 5_000 })
   })
 })
