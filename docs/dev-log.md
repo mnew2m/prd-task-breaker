@@ -16,6 +16,7 @@
 | Phase 6 | Test & CI | `6fee3d3`, `50f97bb`, `8fbf6a0`, `e728d46`, `1eb2edb` | `docs/test-plan.md`, `.github/workflows/` |
 | Phase 7 | Deployment & Operations | `97e7d50`, `25b2b19`, `2c0fc3f`, `87eac79`, `1eb2edb` | `docs/deploy.md`, `docker-compose.yml` |
 | Phase 8 | UX, Security & Quality | `a7ccc1c`, `5b2fc06`, `49a3521`, `464ed25`, `58114a1`, `1058e8e` | `frontend/`, `docs/architecture.md`, `docs/test-plan.md` |
+| Phase 9 | Test Documentation | `49715db` | `docs/test-plan.md` |
 
 ## Document Revision Notes
 
@@ -43,6 +44,7 @@
 | 2026-03-14 | 보안, 안정성, 품질, 접근성, 모바일 UX | `a7ccc1c`, `5b2fc06`, `4e102e8`, `c7ddb95`, `faea72e`, `ca9d17e`, `464ed25`, `49a3521` |
 | 2026-03-14 | 문서 고도화 및 제품 설득력 보강 | `f8dc38a`, `1b5405c`, `19c2d14`, `9f6e888`, `afaa470`, `bc820ae`, `1c92b33`, `eaa6568` |
 | 2026-03-15 | 성능 테스트, 반응형, 피드백 반영, 테스트/CI 자동화 강화 | `815220a`, `cda57cf`, `b4ce15c`, `58114a1`, `e728d46`, `1eb2edb`, `1058e8e`, `f1f6860` |
+| 2026-03-15 | 테스트 문서 보완 (백엔드 커버리지 수치·통합테스트·E2E 잔여 리스크) | `49715db` |
 
 ## 2026-03-13 - Phase 1: Architecture & Structure
 
@@ -818,3 +820,39 @@ GitHub Releases API로 최신 버전 태그를 조회한 뒤 `k6-${VERSION}-linu
 - 타임아웃 시 `exit 1`로 명시 실패 (기존에는 루프 종료 후 다음 스텝으로 넘어감)
 
 > 관련 커밋: `6f1ce58` (문서 정합성 점검), `73e9ec4` (k6 필드명 + health check)
+
+---
+
+## 2026-03-15 - 테스트 문서 보완 (백엔드 커버리지 수치·통합테스트·E2E 잔여 리스크)
+
+> 관련 커밋: `49715db`
+
+### 배경
+
+리뷰어 피드백: "실제 커버리지 수치가 문서에 명시되지 않았고, 백엔드 통합 테스트 실행 결과 리포트가 없음. E2E 테스트가 mock API 기반이라 실제 백엔드와의 통합 검증 부족."
+
+탐색 결과 프론트엔드 커버리지 수치는 이미 문서화되어 있고, `integration.spec.ts`(실제 백엔드 연동 E2E)도 존재하며 test-plan.md에 기록되어 있었다. 그러나 3가지 빈틈이 확인됐다: (1) 백엔드 Jacoco 실제 수치 미기재, (2) `AnalysisIntegrationTest` 누락, (3) integration E2E의 dev 프로필 기반 한계 미명시.
+
+### 수행 내용
+
+**백엔드 Jacoco 실제 커버리지 수치 추가**
+
+`build/reports/jacoco/test/jacocoTestReport.xml`을 파싱해 실제 수치를 측정했다. 백엔드 커버리지 테이블에 "실제" 컬럼을 추가(프론트엔드 테이블과 동일 형식)하고, 로컬 리포트 확인 경로(`build/reports/jacoco/test/html/index.html`)도 안내했다.
+
+| 지표 | 임계값 | 실제 |
+|--|--|--|
+| Lines | 70% | **95.41%** |
+| Branches | 60% | **89.02%** |
+
+**`AnalysisIntegrationTest` 추가 및 백엔드 테스트 구조 명확화**
+
+기존 문서에는 `AnalysisControllerTest`(@WebMvcTest)와 `PrdAnalysisRepositoryTest`(@DataJpaTest)만 기재되어 있었다. `AnalysisIntegrationTest`(@SpringBootTest + @AutoConfigureMockMvc, 6개 메서드)가 누락되어 있었으며, 슬라이스 테스트와 풀 통합 테스트를 구분해 기재하지 않아 계층 구조가 불분명했다.
+
+슬라이스 테스트(@WebMvcTest / @DataJpaTest)와 풀 통합 테스트(@SpringBootTest)로 계층을 구분하고, `AnalysisIntegrationTest`의 6개 메서드를 모두 나열했다. 백엔드 전체 테스트 수(9개 파일, 82개 메서드)도 명시했다.
+
+**E2E 잔여 리스크 섹션 신설**
+
+`integration.spec.ts`가 dev 프로필(MockAiClient + H2) 기반으로 실행된다는 점과 이에 따른 잔여 리스크를 명시하지 않으면, 실제 Claude API 응답 파싱 경로와 PostgreSQL 특성이 E2E 레벨에서 검증된다는 오해가 생길 수 있다.
+
+- 실제 Claude API 경로는 `AiResponseMapperTest`·`AiResponseValidatorTest` 단위 테스트가 부분 커버함을 명시
+- prod 프로필 E2E는 API 키·외부 의존성으로 인해 MVP 범위 외로 명시적 제외
