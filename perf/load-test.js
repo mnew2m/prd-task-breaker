@@ -63,7 +63,7 @@ const SAMPLE_PRD = `
 
 // ── Main test function ──────────────────────────────────────────────────────
 export default function () {
-  const payload = JSON.stringify({ content: SAMPLE_PRD })
+  const payload = JSON.stringify({ prdContent: SAMPLE_PRD })
   const params = {
     headers: { 'Content-Type': 'application/json' },
     timeout: '35s',

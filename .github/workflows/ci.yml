@@ -106,10 +106,16 @@ jobs:
         run: cd backend && gradle bootRun --no-daemon &
       - name: Wait for backend
         run: |
-          for i in $(seq 1 30); do
-            curl -s http://localhost:8080/api/v1/health && break
-            sleep 2
+          for i in $(seq 1 60); do
+            echo "Waiting for backend... ($i/60)"
+            if curl -sf http://localhost:8080/api/v1/health > /dev/null 2>&1; then
+              echo "Backend is up!"
+              exit 0
+            fi
+            sleep 3
           done
+          echo "Backend failed to start within 3 minutes"
+          exit 1
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -147,10 +153,16 @@ jobs:
         run: cd backend && gradle bootRun --no-daemon &
       - name: Wait for backend
         run: |
-          for i in $(seq 1 30); do
-            curl -s http://localhost:8080/api/v1/health && break
-            sleep 2
+          for i in $(seq 1 60); do
+            echo "Waiting for backend... ($i/60)"
+            if curl -sf http://localhost:8080/api/v1/health > /dev/null 2>&1; then
+              echo "Backend is up!"
+              exit 0
+            fi
+            sleep 3
           done
+          echo "Backend failed to start within 3 minutes"
+          exit 1
       - name: Install k6
         run: |
           K6_VERSION=$(curl -s https://api.github.com/repos/grafana/k6/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
