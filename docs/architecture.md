@@ -333,6 +333,16 @@ PENDING 상태가 이미 DB에 저장되므로 비동기 전환 시 클라이언
 - Spring Security + JWT 또는 OAuth2 도입
 - `getRecent()` 쿼리에 userId 필터 추가
 
+### Composable 상태 관리 → Pinia
+
+| | 현재 (MVP) | 확장 시 |
+|---|---|---|
+| 방식 | `useAnalysis`, `useToast` composable + 모듈 레벨 `ref` 싱글턴 | Pinia store로 전환 |
+| 트리거 | 공유 상태를 참조하는 컴포넌트가 3개 이상 증가 시, 또는 devtools로 상태 추적이 필요해질 때 |
+| 변경 범위 | `useAnalysis.ts` → `analysisStore.ts`, `useToast.ts` → `toastStore.ts` 전환. 컴포넌트 import 경로 수정 |
+
+현재 구조는 `useAnalysis()`를 `App.vue` 한 곳에서만 호출하고 props/emit으로 하위 전달하는 단방향 흐름이라 Pinia 없이도 상태 추적이 가능하다. `useToast()`만 모듈 싱글턴으로 전역 공유된다. 화면이 단일 페이지 분석 뷰 하나인 MVP 범위에서는 이 구조로 충분하지만, 라우트가 추가되거나 여러 컴포넌트가 독립적으로 상태를 구독해야 할 경우 Pinia 도입이 유지보수성을 높인다.
+
 ### AI 제공자 교체
 
 `AiClient` 인터페이스 덕분에 Claude 외 다른 모델(OpenAI, Gemini 등)로 교체 시 새 구현체 클래스 하나와 Spring Profile 설정 변경만으로 전환 가능하다. 기존 코드 수정 없음.
