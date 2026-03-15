@@ -54,9 +54,11 @@ test.describe('통합 E2E — 실제 백엔드 연동', () => {
 
     await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 15_000 })
 
-    // 분석 완료 후 히스토리 패널에 항목이 나타나야 한다
+    // 결과 화면에서 입력 화면으로 복귀해야 히스토리 패널이 보인다
+    await page.getByRole('button', { name: '+ 새 분석' }).click()
+
     const historyPanel = page.locator('.analysis-history')
-    await expect(historyPanel).toBeVisible()
+    await expect(historyPanel).toBeVisible({ timeout: 5_000 })
     const historyItems = historyPanel.locator('.history-card')
     await expect(historyItems.first()).toBeVisible({ timeout: 5_000 })
   })
@@ -73,8 +75,8 @@ test.describe('통합 E2E — 실제 백엔드 연동', () => {
 
     await expect(page.getByRole('heading', { name: '분석 결과' })).toBeVisible({ timeout: 15_000 })
 
-    // 👍 버튼 클릭
-    const thumbsUp = page.getByRole('button', { name: '👍' })
+    // 👍 버튼 클릭 (aria-label="유용함"이 accessible name)
+    const thumbsUp = page.getByRole('button', { name: '유용함' })
     await expect(thumbsUp).toBeVisible()
     await thumbsUp.click()
 
