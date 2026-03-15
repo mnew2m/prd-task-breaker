@@ -59,4 +59,15 @@ describe('FeatureList', () => {
     })
     expect(wrapper.text()).toContain('2')
   })
+
+  it('collapsed: true 일 때 section-collapsed 클래스 적용', () => {
+    const wrapper = shallowMount(FeatureList, { props: { features: [], collapsed: true } })
+    expect(wrapper.find('.section-card').classes()).toContain('section-collapsed')
+  })
+
+  it('section-title 클릭 시 toggle-collapse emit', async () => {
+    const wrapper = shallowMount(FeatureList, { props: { features: [] } })
+    await wrapper.find('.section-title').trigger('click')
+    expect(wrapper.emitted('toggle-collapse')).toBeTruthy()
+  })
 })

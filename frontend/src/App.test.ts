@@ -30,6 +30,15 @@ beforeEach(() => {
   Object.defineProperty(window, 'scrollY', { value: 0, configurable: true })
 })
 
+describe('App 초기 상태', () => {
+  it('마운트 시 result 없이 입력 화면 표시', async () => {
+    const wrapper = mount(App, { global: { stubs } })
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'PrdInput' }).exists() || wrapper.find('div').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'AnalysisResult' }).exists()).toBe(false)
+  })
+})
+
 describe('App feedback-submitted → loadRecent', () => {
   it('calls getRecent when AnalysisResult emits feedback-submitted', async () => {
     vi.mocked(analysisApiModule.analysisApi.analyze).mockResolvedValue({

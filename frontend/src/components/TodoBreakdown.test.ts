@@ -55,4 +55,15 @@ describe('TodoBreakdown', () => {
     expect(wrapper.find('.notes').exists()).toBe(true)
     expect(wrapper.text()).toContain('주의사항')
   })
+
+  it('collapsed: true 일 때 section-collapsed 클래스 적용', () => {
+    const wrapper = shallowMount(TodoBreakdown, { props: { todos: [], collapsed: true } })
+    expect(wrapper.find('.section-card').classes()).toContain('section-collapsed')
+  })
+
+  it('section-title 클릭 시 toggle-collapse emit', async () => {
+    const wrapper = shallowMount(TodoBreakdown, { props: { todos: [] } })
+    await wrapper.find('.section-title').trigger('click')
+    expect(wrapper.emitted('toggle-collapse')).toBeTruthy()
+  })
 })

@@ -153,8 +153,9 @@ cd backend && gradle test --no-daemon
 | README.md | 빠른 실행, 기능 개요, 개발 진입점 |
 | [CLAUDE.md](CLAUDE.md) | AI 어시스턴트 협업용 컨텍스트, 아키텍처/프로파일/작업 규칙 |
 | [docs/architecture.md](docs/architecture.md) | 시스템 구조, 프론트엔드 상태관리, 데이터 흐름, 설계 결정 |
+| [docs/api-spec.md](docs/api-spec.md) | REST API 명세 (엔드포인트, 요청/응답 스키마, 에러 코드) |
 | [docs/test-plan.md](docs/test-plan.md) | 테스트 전략, 커버리지 목표, E2E/성능/운영 검증 계획 |
 | [docs/dev-log.md](docs/dev-log.md) | 날짜별 작업 기록, 문제 해결 과정, 관련 커밋 추적 |
 | [docs/deploy.md](docs/deploy.md) | 배포 절차, 환경 변수, 모니터링/롤백 가이드 |
 
-> **권장 읽기 순서**: [PRD.md](PRD.md) → README.md → [docs/architecture.md](docs/architecture.md) → [docs/test-plan.md](docs/test-plan.md) → [docs/deploy.md](docs/deploy.md) → [docs/dev-log.md](docs/dev-log.md)
+> **권장 읽기 순서**: [PRD.md](PRD.md) → README.md → [docs/architecture.md](docs/architecture.md) → [docs/api-spec.md](docs/api-spec.md) → [docs/test-plan.md](docs/test-plan.md) → [docs/deploy.md](docs/deploy.md) → [docs/dev-log.md](docs/dev-log.md)

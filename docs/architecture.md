@@ -25,22 +25,21 @@ App.vue  (루트 — 전역 상태 소유, 화면 전환 조건부 렌더링)
   ├── PrdInput.vue           ← PRD 텍스트 입력, 유효성 표시, 샘플 로드
   ├── LoadingState.vue       ← 로딩 스피너 + 모드별 문구 (analyze / load)
   ├── ErrorState.vue         ← 에러 메시지 + 재시도 버튼
-  ├── AnalysisResult.vue     ← 분석 결과 9개 섹션 렌더링
-  │     ├── FeatureList.vue
-  │     ├── UserStoryList.vue
-  │     ├── TodoList.vue
-  │     ├── ApiDraftList.vue
-  │     ├── DbDraftList.vue
-  │     ├── ChecklistSection.vue  (테스트·릴리즈 공용)
-  │     ├── UncertainItems.vue
-  │     ├── ReadmeDraft.vue       (클립보드 복사 버튼 포함)
+  ├── AnalysisResult.vue     ← 분석 결과 9개 섹션 렌더링, collapsedSections 상태 관리
+  │     ├── FeatureList.vue       (collapsed?: boolean, emit toggle-collapse)
+  │     ├── UserStories.vue       (collapsed?: boolean, emit toggle-collapse)
+  │     ├── TodoBreakdown.vue     (collapsed?: boolean, emit toggle-collapse)
+  │     ├── ApiDraft.vue          (collapsed?: boolean, emit toggle-collapse)
+  │     ├── DbDraft.vue           (collapsed?: boolean, emit toggle-collapse)
+  │     ├── TestChecklist.vue     (collapsed?: boolean, emit toggle-collapse)
+  │     ├── ReleaseChecklist.vue  (collapsed?: boolean, emit toggle-collapse)
+  │     ├── UncertainItems.vue    (collapsed?: boolean, emit toggle-collapse)
   │     ├── FeedbackSection.vue   (👍/👎, 제출 후 비활성화)
   │     └── PdfExportButton.vue
   │           └── SectionReorderModal.vue  ← 드래그&드롭(PC) / 터치(모바일)
-  ├── HistoryPanel.vue       ← 최근 분석 목록, 접기/펼치기
+  ├── AnalysisHistory.vue    ← 최근 분석 목록, 접기/펼치기
   ├── ConfirmDialog.vue      ← 취소 확인 모달 (포커스 트랩)
-  ├── Toast.vue              ← 토스트 알림 렌더러 (TransitionGroup)
-  └── ScrollToTop.vue        ← 모바일 전용 스크롤 상단 버튼
+  └── Toast.vue              ← 토스트 알림 렌더러 (TransitionGroup)
 ```
 
 ### useAnalysis Composable
@@ -79,6 +78,44 @@ Backend REST API (:8080)
 ```
 
 `analysisApi`는 Axios 인스턴스를 래핑한 순수 함수 모음이며 상태를 갖지 않는다. 상태는 모두 `useAnalysis` composable이 소유한다. 이 분리 덕분에 `useAnalysis`를 단위 테스트할 때 `analysisApi`만 mocking하면 된다.
+
+### 섹션 접기/펼치기
+
+`AnalysisResult.vue`는 `collapsedSections` reactive 객체로 8개 섹션의 접기 상태를 관리한다.
+
+```
+초기 상태 (INITIALLY_OPEN = ['features', 'userStories', 'todos'])
+  features:         collapsed = false  ← 펼침
+  userStories:      collapsed = false  ← 펼침
+  todos:            collapsed = false  ← 펼침
+  apiDrafts:        collapsed = true   ← 접힘
+  dbDrafts:         collapsed = true   ← 접힘
+  testChecklist:    collapsed = true   ← 접힘
+  releaseChecklist: collapsed = true   ← 접힘
+  uncertainItems:   collapsed = true   ← 접힘
+```
+
+각 섹션 컴포넌트는 `collapsed` prop을 받아 `.section-card`에 `.section-collapsed` 클래스를 바인딩한다. `section-title` 클릭 시 `toggle-collapse`를 emit하면 `AnalysisResult`가 `toggleSection(key)`를 호출해 해당 섹션의 `collapsedSections[key]`를 반전시킨다.
+
+`section-body`에 CSS `max-height` transition이 적용되어 있어 열기/닫기 시 부드럽게 애니메이션된다. collapsed 상태에서 `border-color`를 transparent로 처리해 접힌 카드가 배경과 구분되지 않게 한다.
+
+### CSS Columns 레이아웃
+
+섹션 그리드는 `column-count: 2`를 사용한다. Grid 대비 장점: 접힌 카드가 생길 때 아래 카드가 자동으로 위로 채워져 공간 낭비가 없다. Grid는 행 높이를 고정하므로 접힌 카드 자리가 빈 공간으로 남는다.
+
+```css
+.sections-grid {
+  column-count: 2;
+  column-gap: 1.5rem;
+}
+.sections-grid :deep(.section-card) {
+  break-inside: avoid;   /* 카드가 열 사이에서 잘리지 않도록 */
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 1050px) {
+  .sections-grid { column-count: 1; }
+}
+```
 
 ### 레이스 컨디션 방지
 

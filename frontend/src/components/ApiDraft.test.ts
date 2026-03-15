@@ -57,4 +57,15 @@ describe('ApiDraft', () => {
     })
     expect(wrapper.findAll('.body-section')).toHaveLength(0)
   })
+
+  it('collapsed: true 일 때 section-collapsed 클래스 적용', () => {
+    const wrapper = shallowMount(ApiDraft, { props: { apiDrafts: [], collapsed: true } })
+    expect(wrapper.find('.section-card').classes()).toContain('section-collapsed')
+  })
+
+  it('section-title 클릭 시 toggle-collapse emit', async () => {
+    const wrapper = shallowMount(ApiDraft, { props: { apiDrafts: [] } })
+    await wrapper.find('.section-title').trigger('click')
+    expect(wrapper.emitted('toggle-collapse')).toBeTruthy()
+  })
 })

@@ -135,6 +135,26 @@ describe('AnalysisResult', () => {
     expect(wrapper.find('.readme-section').exists()).toBe(false)
   })
 
+  it('기본 섹션 접기 상태: features/userStories/todos 펼침, 나머지 접힘', () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    const featureList = wrapper.findComponent({ name: 'FeatureList' })
+    const todoBreakdown = wrapper.findComponent({ name: 'TodoBreakdown' })
+    const apiDraft = wrapper.findComponent({ name: 'ApiDraft' })
+    expect(featureList.props('collapsed')).toBe(false)
+    expect(todoBreakdown.props('collapsed')).toBe(false)
+    expect(apiDraft.props('collapsed')).toBe(true)
+  })
+
+  it('섹션 타이틀 클릭 시 접기/펼치기 토글', async () => {
+    const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
+    const featureList = wrapper.findComponent({ name: 'FeatureList' })
+    expect(featureList.props('collapsed')).toBe(false)
+    await featureList.vm.$emit('toggle-collapse')
+    expect(featureList.props('collapsed')).toBe(true)
+    await featureList.vm.$emit('toggle-collapse')
+    expect(featureList.props('collapsed')).toBe(false)
+  })
+
   it('applies new section order when reorder modal emits apply', async () => {
     const wrapper = shallowMount(AnalysisResult, { props: { result: mockResult } })
     const modal = wrapper.findComponent({ name: 'SectionReorderModal' })

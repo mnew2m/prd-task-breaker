@@ -54,4 +54,15 @@ describe('UserStories', () => {
     expect(wrapper.find('.notes').exists()).toBe(true)
     expect(wrapper.text()).toContain('비고')
   })
+
+  it('collapsed: true 일 때 section-collapsed 클래스 적용', () => {
+    const wrapper = shallowMount(UserStories, { props: { stories: [], collapsed: true } })
+    expect(wrapper.find('.section-card').classes()).toContain('section-collapsed')
+  })
+
+  it('section-title 클릭 시 toggle-collapse emit', async () => {
+    const wrapper = shallowMount(UserStories, { props: { stories: [] } })
+    await wrapper.find('.section-title').trigger('click')
+    expect(wrapper.emitted('toggle-collapse')).toBeTruthy()
+  })
 })

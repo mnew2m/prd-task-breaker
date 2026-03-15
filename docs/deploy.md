@@ -72,9 +72,12 @@ Railway 서비스 설정에서 헬스체크 경로를 `/api/v1/health`로 설정
 ```
 [push to main / PR]
       │
-      ├──▶ backend-test       gradle build (compile + test + jacoco)
+      ├──▶ backend-test       gradle build (compile + test + jacoco + 커버리지 임계값 검증), backend-test-report 아티팩트 저장
       ├──▶ frontend-check     npm audit → type-check → test:coverage → build
-      └──▶ frontend-e2e       Playwright Chromium (smoke 6개 + user-flows 4개)
+      └──▶ frontend-e2e       Playwright Chromium (smoke 6개 + user-flows 7개)
+
+[main push / workflow_dispatch]
+      └──▶ e2e-integration    실제 백엔드 기동 + Playwright integration 4개
 
 [모든 잡 통과 시]
       ├──▶ Vercel: 자동 배포 (프론트엔드)
