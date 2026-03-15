@@ -33,3 +33,7 @@ pnpm-debug.log*
 /.gradle/
 /tmp/
 /temp/
+
+# k6 binary downloads
+k6-v*/
+k6-summary.json

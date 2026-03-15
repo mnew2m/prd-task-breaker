@@ -793,3 +793,28 @@ GitHub Releases API로 최신 버전 태그를 조회한 뒤 `k6-${VERSION}-linu
 교훈: CI에 새 셸 명령어/외부 URL 추가 시 커밋 전 로컬 검증 필수.
 
 > 관련 커밋: `9843637` (k6 CI 자동 통합 + 모니터링 문서), `0db4079` (k6 바이너리 설치 수정)
+
+---
+
+## 2026-03-15 - 문서 정합성 점검 + k6 필드명 버그 수정
+
+### 문서 최종 정합성 점검 (`6f1ce58`)
+
+`*.md` 파일과 실제 코드/CI 상태 사이의 불일치를 일괄 점검·수정했다.
+- `docs/test-plan.md`: CI 섹션에 누락된 `performance` 잡 항목 추가
+- `docs/dev-log.md`: k6 설치 방식 수정 경위 + 관련 커밋 해시 기록
+- `CLAUDE.md`: Testing 섹션에 E2E 실행 명령어 추가
+- `.github/workflows/ci.yml`, `performance.yml`: k6 바이너리 직접 다운로드 방식 반영
+
+### k6 요청 필드명 수정 + CI health check 개선 (`73e9ec4`)
+
+**k6 필드명 버그**
+`perf/load-test.js`의 POST body가 `{ content: ... }`로 되어 있었으나, 백엔드 DTO(`PrdAnalysisRequest`)의 필드명은 `prdContent`. Jackson 매핑 실패로 `@NotBlank` 검증에서 400 Bad Request가 반환되어 CI `performance` 잡이 3회 연속 실패했다.
+`{ prdContent: ... }`로 수정하여 해결.
+
+**CI health check 개선**
+`e2e-integration`·`performance` 잡의 백엔드 헬스체크 루프를 개선:
+- 대기 시간: 30회 × 2초(60초) → 60회 × 3초(180초)
+- 타임아웃 시 `exit 1`로 명시 실패 (기존에는 루프 종료 후 다음 스텝으로 넘어감)
+
+> 관련 커밋: `6f1ce58` (문서 정합성 점검), `73e9ec4` (k6 필드명 + health check)
