@@ -16,7 +16,7 @@
 | Phase 6 | Test & CI | `6fee3d3`, `50f97bb`, `8fbf6a0`, `e728d46`, `1eb2edb` | `docs/test-plan.md`, `.github/workflows/` |
 | Phase 7 | Deployment & Operations | `97e7d50`, `25b2b19`, `2c0fc3f`, `87eac79`, `1eb2edb` | `docs/deploy.md`, `docker-compose.yml` |
 | Phase 8 | UX, Security & Quality | `a7ccc1c`, `5b2fc06`, `49a3521`, `464ed25`, `58114a1`, `1058e8e` | `frontend/`, `docs/architecture.md`, `docs/test-plan.md` |
-| Phase 9 | Test Documentation | `49715db` | `docs/test-plan.md` |
+| Phase 9 | Test Documentation | `49715db`, `0d19dcd`, `d32cbca` | `docs/test-plan.md`, `docs/deploy.md` |
 
 ## Document Revision Notes
 
@@ -45,6 +45,7 @@
 | 2026-03-14 | 문서 고도화 및 제품 설득력 보강 | `f8dc38a`, `1b5405c`, `19c2d14`, `9f6e888`, `afaa470`, `bc820ae`, `1c92b33`, `eaa6568` |
 | 2026-03-15 | 성능 테스트, 반응형, 피드백 반영, 테스트/CI 자동화 강화 | `815220a`, `cda57cf`, `b4ce15c`, `58114a1`, `e728d46`, `1eb2edb`, `1058e8e`, `f1f6860` |
 | 2026-03-15 | 테스트 문서 보완 (백엔드 커버리지 수치·통합테스트·E2E 잔여 리스크) | `49715db` |
+| 2026-03-15 | CI performance 잡 MockAiClient 한계 명시 (test-plan + deploy) | `0d19dcd`, `d32cbca` |
 
 ## 2026-03-13 - Phase 1: Architecture & Structure
 
@@ -820,6 +821,21 @@ GitHub Releases API로 최신 버전 태그를 조회한 뒤 `k6-${VERSION}-linu
 - 타임아웃 시 `exit 1`로 명시 실패 (기존에는 루프 종료 후 다음 스텝으로 넘어감)
 
 > 관련 커밋: `6f1ce58` (문서 정합성 점검), `73e9ec4` (k6 필드명 + health check)
+
+---
+
+## 2026-03-15 - CI performance 잡 MockAiClient 한계 명시
+
+> 관련 커밋: `0d19dcd` (dev-log), `d32cbca` (test-plan + deploy)
+
+### 배경
+
+CI `performance` 잡이 "P95 30초 자동 검증"으로 문서화되어 있었으나, 실제로는 dev 프로필(MockAiClient) 기반으로 실행되므로 실제 Claude API 응답 시간과 무관하다는 사실이 문서에 누락되어 있었다. MockAiClient는 고정 JSON을 즉시 반환해 k6 threshold가 구조적으로 실패하지 않으므로, "자동 검증됨"이라는 오해를 유발할 수 있는 상태였다.
+
+### 수행 내용
+
+- `docs/test-plan.md`: CI 자동 검증 섹션에 한계 블록 추가 (MockAiClient 기반 → threshold 구조적 미실패 → 회귀 방지 용도 명시), CI 잡 목록 항목에 단서 추가
+- `docs/deploy.md`: 성능 목표 테이블의 검증 방법 정정 ("CI 자동 검증" → "`performance.yml` 수동 트리거 + Sentry P95 알림"), CI 자동 성능 검증 한계 블록 추가, "프로덕션 실제 성능 검증" 섹션 신설 (`performance.yml` 수동 트리거 + Sentry 두 경로 명시)
 
 ---
 
