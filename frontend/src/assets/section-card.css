@@ -15,9 +15,27 @@
   user-select: none;
 }
 
+.section-collapsed {
+  padding-bottom: 0;
+}
+
 .section-collapsed .section-title {
   margin-bottom: 0;
-  border-bottom-color: #e0e0e0;
+  padding-bottom: 0.75rem;
+  border-bottom-color: transparent;
+}
+
+.section-body {
+  overflow: hidden;
+  max-height: 2000px;
+  opacity: 1;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+}
+
+.section-collapsed .section-body {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.15s ease;
 }
 
 .title-inner {

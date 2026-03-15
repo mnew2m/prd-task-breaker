@@ -4,7 +4,7 @@
       <span class="title-inner"><FlaskConical :size="18" /> 테스트 체크리스트 ({{ items.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
     <div v-if="items.length === 0" class="empty">항목 없음</div>
     <ul v-else class="checklist">
       <li v-for="(item, i) in items" :key="i" class="checklist-item">

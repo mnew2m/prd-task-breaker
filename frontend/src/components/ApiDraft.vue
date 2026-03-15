@@ -4,7 +4,7 @@
       <span class="title-inner"><Globe :size="18" /> API 초안 ({{ apiDrafts.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
       <div v-if="apiDrafts.length === 0" class="empty">API 없음</div>
       <div v-else class="api-list">
         <div v-for="(a, i) in apiDrafts" :key="i" class="api-item">

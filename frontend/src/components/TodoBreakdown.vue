@@ -4,7 +4,7 @@
       <span class="title-inner"><CheckSquare :size="18" /> TODO 항목 ({{ todos.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
     <div v-if="todos.length === 0" class="empty">TODO 없음</div>
     <div v-else class="todo-list">
       <div v-for="(t, i) in todos" :key="i" class="todo-item">

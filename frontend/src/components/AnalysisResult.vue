@@ -180,9 +180,19 @@ async function copyReadme() {
 }
 
 .sections-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(500px, 100%), 1fr));
-  gap: 1.5rem;
+  column-count: 2;
+  column-gap: 1.5rem;
+}
+
+.sections-grid :deep(.section-card) {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1050px) {
+  .sections-grid {
+    column-count: 1;
+  }
 }
 
 .result-notice {

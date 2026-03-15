@@ -4,7 +4,7 @@
       <span class="title-inner"><HelpCircle :size="18" /> 불확실 항목 ({{ items.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
     <div v-if="items.length === 0" class="empty">불확실 항목 없음</div>
     <ul v-else class="uncertain-list">
       <li v-for="(item, i) in items" :key="i" class="uncertain-item">

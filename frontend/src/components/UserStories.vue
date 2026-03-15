@@ -4,7 +4,7 @@
       <span class="title-inner"><Users :size="18" /> 유저 스토리 ({{ stories.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
     <div v-if="stories.length === 0" class="empty">스토리 없음</div>
     <div v-else class="story-list">
       <div v-for="(s, i) in stories" :key="i" class="story-item">

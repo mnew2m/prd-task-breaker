@@ -4,7 +4,7 @@
       <span class="title-inner"><LayoutList :size="18" /> 기능 목록 ({{ features.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
     <div v-if="features.length === 0" class="empty">기능 없음</div>
     <div v-else class="feature-list">
       <div v-for="(f, i) in features" :key="i" class="feature-item">

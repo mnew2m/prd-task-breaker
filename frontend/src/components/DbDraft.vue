@@ -4,7 +4,7 @@
       <span class="title-inner"><Database :size="18" /> DB 초안 ({{ dbDrafts.length }})</span>
       <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
     </h3>
-    <div v-show="!collapsed">
+    <div class="section-body">
       <div v-if="dbDrafts.length === 0" class="empty">DB 스키마 없음</div>
       <div v-else class="db-list">
         <div v-for="(d, i) in dbDrafts" :key="i" class="db-item">
