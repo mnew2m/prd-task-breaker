@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { analysisApi } from '../api/analysisApi'
-import { isCanceledError, extractApiErrorMessage } from '../utils/errors'
+import { isCanceledError, classifyError } from '../utils/errors'
 import { useToast } from './useToast'
 import type { PrdAnalysisResponse } from '../types/analysis'
 
@@ -10,6 +10,7 @@ export function useAnalysis() {
   const isLoading = ref(false)
   const loadingMode = ref<'analyze' | 'load' | null>(null)
   const error = ref<string | null>(null)
+  const errorHint = ref<string | null>(null)
   const recentList = ref<PrdAnalysisResponse[]>([])
   const abortController = ref<AbortController | null>(null)
 
@@ -28,6 +29,7 @@ export function useAnalysis() {
     isLoading.value = true
     loadingMode.value = 'analyze'
     error.value = null
+    errorHint.value = null
     result.value = null
 
     try {
@@ -36,7 +38,9 @@ export function useAnalysis() {
       showToast('분석이 완료되었습니다')
     } catch (e: unknown) {
       if (isCanceledError(e)) return  // 사용자 취소 — 정상 흐름, 에러 표시 없음
-      error.value = extractApiErrorMessage(e) ?? '서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'
+      const classified = classifyError(e)
+      error.value = classified.message
+      errorHint.value = classified.hint ?? null
     } finally {
       isLoading.value = false
       loadingMode.value = null
@@ -47,10 +51,13 @@ export function useAnalysis() {
     isLoading.value = true
     loadingMode.value = 'load'
     error.value = null
+    errorHint.value = null
     try {
       result.value = await analysisApi.getById(id)
-    } catch {
-      error.value = '분석 결과를 불러올 수 없습니다.'
+    } catch (e: unknown) {
+      const classified = classifyError(e)
+      error.value = classified.message
+      errorHint.value = classified.hint ?? null
     } finally {
       isLoading.value = false
       loadingMode.value = null
@@ -70,9 +77,10 @@ export function useAnalysis() {
     abortController.value = null
     result.value = null
     error.value = null
+    errorHint.value = null
     isLoading.value = false
     loadingMode.value = null
   }
 
-  return { result, isLoading, loadingMode, error, hasResult, recentList, analyze, loadById, loadRecent, reset }
+  return { result, isLoading, loadingMode, error, errorHint, hasResult, recentList, analyze, loadById, loadRecent, reset }
 }

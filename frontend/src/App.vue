@@ -24,7 +24,7 @@
           @analyze="analyze"
         />
         <LoadingState v-if="isLoading" :mode="loadingMode" @cancel="reset" />
-        <ErrorState v-else-if="error" :message="error" @retry="reset" />
+        <ErrorState v-else-if="error" :message="error" :hint="errorHint ?? undefined" @retry="reset" />
         <AnalysisHistory
           :recent-list="recentList"
           @select="loadById"
@@ -52,7 +52,7 @@ import ErrorState from './components/ErrorState.vue'
 import AnalysisHistory from './components/AnalysisHistory.vue'
 import Toast from './components/Toast.vue'
 
-const { result, isLoading, loadingMode, error, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
+const { result, isLoading, loadingMode, error, errorHint, hasResult, recentList, analyze, loadById, loadRecent, reset } = useAnalysis()
 
 const showScrollTop = ref(false)
 

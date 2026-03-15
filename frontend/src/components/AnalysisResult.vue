@@ -19,6 +19,8 @@
         :key="key"
         :is="SECTION_COMPONENTS[key]"
         v-bind="getSectionProps(key)"
+        :collapsed="collapsedSections[key]"
+        @toggle-collapse="toggleSection(key)"
       />
     </div>
 
@@ -44,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Component } from 'vue'
+import { reactive, ref, type Component } from 'vue'
 import type { PrdAnalysisResponse } from '../types/analysis'
 import { BrainCircuit, Copy, FileText, GripVertical } from 'lucide-vue-next'
 import { useToast } from '../composables/useToast'
@@ -94,6 +96,17 @@ function getSectionProps(key: GridSectionKey): Record<string, unknown> {
 }
 
 const { show: showToast } = useToast()
+
+const INITIALLY_OPEN: GridSectionKey[] = ['features', 'userStories', 'todos']
+const collapsedSections = reactive(
+  Object.fromEntries(
+    DEFAULT_SECTION_ORDER.map(k => [k, !INITIALLY_OPEN.includes(k)])
+  ) as Record<GridSectionKey, boolean>
+)
+
+function toggleSection(key: GridSectionKey) {
+  collapsedSections[key] = !collapsedSections[key]
+}
 
 const sectionOrder = ref<GridSectionKey[]>([...DEFAULT_ORDER])
 const isReorderOpen = ref(false)

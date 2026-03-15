@@ -1,6 +1,10 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><CheckSquare :size="18" /> TODO 항목 ({{ todos.length }})</h3>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><CheckSquare :size="18" /> TODO 항목 ({{ todos.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
     <div v-if="todos.length === 0" class="empty">TODO 없음</div>
     <div v-else class="todo-list">
       <div v-for="(t, i) in todos" :key="i" class="todo-item">
@@ -15,15 +19,17 @@
         <p v-if="t.notes" class="notes">📝 {{ t.notes }}</p>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { TodoItemDto } from '../types/analysis'
-import { CheckSquare } from 'lucide-vue-next'
+import { ChevronDown, CheckSquare } from 'lucide-vue-next'
 import { priorityClass } from '../utils/priority'
 
-defineProps<{ todos: TodoItemDto[] }>()
+defineProps<{ todos: TodoItemDto[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 </script>
 
 <style scoped>

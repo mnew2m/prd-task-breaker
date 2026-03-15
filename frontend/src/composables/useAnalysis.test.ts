@@ -70,7 +70,10 @@ describe('useAnalysis', () => {
   })
 
   it('analyze network failure sets generic error message', async () => {
-    vi.mocked(analysisApi.analyze).mockRejectedValue(new Error('Network Error'))
+    // 응답 없는 AxiosError = 네트워크 오류
+    vi.mocked(analysisApi.analyze).mockRejectedValue(
+      new axios.AxiosError('Network Error', 'ERR_NETWORK')
+    )
 
     const { error, analyze } = useAnalysis()
     await analyze(VALID_PRD)
@@ -113,13 +116,18 @@ describe('useAnalysis', () => {
   })
 
   it('loadById failure sets error', async () => {
-    vi.mocked(analysisApi.getById).mockRejectedValue(new Error('Not found'))
+    // 404 AxiosError
+    vi.mocked(analysisApi.getById).mockRejectedValue(
+      Object.assign(new axios.AxiosError('Not found', 'ERR_BAD_RESPONSE'), {
+        response: { status: 404, data: {} },
+      })
+    )
 
     const { result, error, loadById } = useAnalysis()
     await loadById(999)
 
     expect(result.value).toBeNull()
-    expect(error.value).toContain('불러올 수 없습니다')
+    expect(error.value).toContain('찾을 수 없습니다')
   })
 
   it('loadById sets isLoading false after completion', async () => {

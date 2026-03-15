@@ -1,16 +1,21 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><Database :size="18" /> DB 초안 ({{ dbDrafts.length }})</h3>
-    <div v-if="dbDrafts.length === 0" class="empty">DB 스키마 없음</div>
-    <div v-else class="db-list">
-      <div v-for="(d, i) in dbDrafts" :key="i" class="db-item">
-        <div class="table-name">📋 {{ d.tableName }}</div>
-        <ul class="columns">
-          <li v-for="(col, j) in d.columns" :key="j">
-            <code>{{ col }}</code>
-          </li>
-        </ul>
-        <p v-if="d.notes" class="notes">📝 {{ d.notes }}</p>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><Database :size="18" /> DB 초안 ({{ dbDrafts.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
+      <div v-if="dbDrafts.length === 0" class="empty">DB 스키마 없음</div>
+      <div v-else class="db-list">
+        <div v-for="(d, i) in dbDrafts" :key="i" class="db-item">
+          <div class="table-name">📋 {{ d.tableName }}</div>
+          <ul class="columns">
+            <li v-for="(col, j) in d.columns" :key="j">
+              <code>{{ col }}</code>
+            </li>
+          </ul>
+          <p v-if="d.notes" class="notes">📝 {{ d.notes }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -18,8 +23,9 @@
 
 <script setup lang="ts">
 import type { DbDraftDto } from '../types/analysis'
-import { Database } from 'lucide-vue-next'
-defineProps<{ dbDrafts: DbDraftDto[] }>()
+import { ChevronDown, Database } from 'lucide-vue-next'
+defineProps<{ dbDrafts: DbDraftDto[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 </script>
 
 <style scoped>

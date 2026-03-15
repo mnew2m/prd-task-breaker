@@ -1,6 +1,10 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><LayoutList :size="18" /> 기능 목록 ({{ features.length }})</h3>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><LayoutList :size="18" /> 기능 목록 ({{ features.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
     <div v-if="features.length === 0" class="empty">기능 없음</div>
     <div v-else class="feature-list">
       <div v-for="(f, i) in features" :key="i" class="feature-item">
@@ -12,15 +16,17 @@
         <p v-if="f.notes" class="notes">📝 {{ f.notes }}</p>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { FeatureDto } from '../types/analysis'
-import { LayoutList } from 'lucide-vue-next'
+import { ChevronDown, LayoutList } from 'lucide-vue-next'
 import { priorityClass } from '../utils/priority'
 
-defineProps<{ features: FeatureDto[] }>()
+defineProps<{ features: FeatureDto[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 </script>
 
 <style scoped>

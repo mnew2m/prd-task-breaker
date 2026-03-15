@@ -1,23 +1,28 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><Globe :size="18" /> API 초안 ({{ apiDrafts.length }})</h3>
-    <div v-if="apiDrafts.length === 0" class="empty">API 없음</div>
-    <div v-else class="api-list">
-      <div v-for="(a, i) in apiDrafts" :key="i" class="api-item">
-        <div class="api-header">
-          <span class="method" :class="methodClass(a.method)">{{ a.method }}</span>
-          <code class="path">{{ a.path }}</code>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><Globe :size="18" /> API 초안 ({{ apiDrafts.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
+      <div v-if="apiDrafts.length === 0" class="empty">API 없음</div>
+      <div v-else class="api-list">
+        <div v-for="(a, i) in apiDrafts" :key="i" class="api-item">
+          <div class="api-header">
+            <span class="method" :class="methodClass(a.method)">{{ a.method }}</span>
+            <code class="path">{{ a.path }}</code>
+          </div>
+          <p class="api-desc">{{ a.description }}</p>
+          <div v-if="a.requestBody" class="body-section">
+            <span class="body-label">Request:</span>
+            <code>{{ a.requestBody }}</code>
+          </div>
+          <div v-if="a.responseBody" class="body-section">
+            <span class="body-label">Response:</span>
+            <code>{{ a.responseBody }}</code>
+          </div>
+          <p v-if="a.notes" class="notes">📝 {{ a.notes }}</p>
         </div>
-        <p class="api-desc">{{ a.description }}</p>
-        <div v-if="a.requestBody" class="body-section">
-          <span class="body-label">Request:</span>
-          <code>{{ a.requestBody }}</code>
-        </div>
-        <div v-if="a.responseBody" class="body-section">
-          <span class="body-label">Response:</span>
-          <code>{{ a.responseBody }}</code>
-        </div>
-        <p v-if="a.notes" class="notes">📝 {{ a.notes }}</p>
       </div>
     </div>
   </div>
@@ -25,8 +30,9 @@
 
 <script setup lang="ts">
 import type { ApiDraftDto } from '../types/analysis'
-import { Globe } from 'lucide-vue-next'
-defineProps<{ apiDrafts: ApiDraftDto[] }>()
+import { ChevronDown, Globe } from 'lucide-vue-next'
+defineProps<{ apiDrafts: ApiDraftDto[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 
 function methodClass(m: string) {
   return {

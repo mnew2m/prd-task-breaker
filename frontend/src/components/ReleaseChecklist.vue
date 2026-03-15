@@ -1,6 +1,10 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><Rocket :size="18" /> 릴리즈 체크리스트 ({{ items.length }})</h3>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><Rocket :size="18" /> 릴리즈 체크리스트 ({{ items.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
     <div v-if="items.length === 0" class="empty">항목 없음</div>
     <ul v-else class="checklist">
       <li v-for="(item, i) in items" :key="i" class="checklist-item">
@@ -9,13 +13,15 @@
         <span class="category-tag">{{ item.category }}</span>
       </li>
     </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { ChecklistItemDto } from '../types/analysis'
-import { Rocket } from 'lucide-vue-next'
-defineProps<{ items: ChecklistItemDto[] }>()
+import { ChevronDown, Rocket } from 'lucide-vue-next'
+defineProps<{ items: ChecklistItemDto[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 </script>
 
 <style scoped>

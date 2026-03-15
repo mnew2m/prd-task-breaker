@@ -11,6 +11,30 @@
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #1a1a2e;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-collapsed .section-title {
+  margin-bottom: 0;
+  border-bottom-color: #e0e0e0;
+}
+
+.title-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: #aaa;
+  transition: transform 0.2s ease;
+}
+
+.section-chevron.is-open {
+  transform: rotate(180deg);
 }
 
 .empty {

@@ -1,15 +1,16 @@
 <template>
   <div class="error-state" role="alert">
     <div class="error-icon">⚠️</div>
-    <h3>분석 중 오류가 발생했습니다</h3>
-    <p>{{ message }}</p>
+    <h3>오류가 발생했습니다</h3>
+    <p class="error-message">{{ message }}</p>
+    <p v-if="hint" class="error-hint">💡 {{ hint }}</p>
     <button @click="emit('retry')"><RefreshCw :size="14" /> 다시 시도</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { RefreshCw } from 'lucide-vue-next'
-defineProps<{ message: string }>()
+defineProps<{ message: string; hint?: string }>()
 const emit = defineEmits<{ retry: [] }>()
 </script>
 
@@ -32,8 +33,18 @@ h3 {
   margin-bottom: 0.5rem;
 }
 
-p {
+.error-message {
   color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.error-hint {
+  font-size: 0.875rem;
+  color: #888;
+  background: #fef9ec;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  display: inline-block;
   margin-bottom: 1.5rem;
 }
 

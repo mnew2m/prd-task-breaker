@@ -1,6 +1,10 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><Users :size="18" /> 유저 스토리 ({{ stories.length }})</h3>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><Users :size="18" /> 유저 스토리 ({{ stories.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
     <div v-if="stories.length === 0" class="empty">스토리 없음</div>
     <div v-else class="story-list">
       <div v-for="(s, i) in stories" :key="i" class="story-item">
@@ -17,13 +21,15 @@
         <p v-if="s.notes" class="notes">📝 {{ s.notes }}</p>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { UserStoryDto } from '../types/analysis'
-import { Users } from 'lucide-vue-next'
-defineProps<{ stories: UserStoryDto[] }>()
+import { ChevronDown, Users } from 'lucide-vue-next'
+defineProps<{ stories: UserStoryDto[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 </script>
 
 <style scoped>

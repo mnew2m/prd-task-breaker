@@ -1,18 +1,24 @@
 <template>
-  <div class="section-card">
-    <h3 class="section-title"><HelpCircle :size="18" /> 불확실 항목 ({{ items.length }})</h3>
+  <div class="section-card" :class="{ 'section-collapsed': collapsed }">
+    <h3 class="section-title" @click="emit('toggle-collapse')" :aria-expanded="!collapsed">
+      <span class="title-inner"><HelpCircle :size="18" /> 불확실 항목 ({{ items.length }})</span>
+      <ChevronDown :size="16" class="section-chevron" :class="{ 'is-open': !collapsed }" />
+    </h3>
+    <div v-show="!collapsed">
     <div v-if="items.length === 0" class="empty">불확실 항목 없음</div>
     <ul v-else class="uncertain-list">
       <li v-for="(item, i) in items" :key="i" class="uncertain-item">
         ❓ {{ item }}
       </li>
     </ul>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { HelpCircle } from 'lucide-vue-next'
-defineProps<{ items: string[] }>()
+import { ChevronDown, HelpCircle } from 'lucide-vue-next'
+defineProps<{ items: string[]; collapsed?: boolean }>()
+const emit = defineEmits<{ 'toggle-collapse': [] }>()
 </script>
 
 <style scoped>
