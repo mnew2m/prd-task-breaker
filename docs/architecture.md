@@ -150,6 +150,8 @@ Schema is managed by **Flyway** (`db/migration/`):
 dev 환경은 H2 인메모리 + `flyway.enabled: false`, prod 환경은 PostgreSQL + Flyway 활성화 + `ddl-auto: validate`.
 Flyway는 피드백 기능 추가(V2)가 첫 번째 실질적 스키마 변경이 되는 시점에 도입했다. 초기에는 단일 엔티티 하나로 `ddl-auto: update`로 충분했으나, 스키마 변경이 코드 이력 밖에서 수동 실행되는 패턴을 방지하기 위해 이 시점에 명시적 관리로 전환했다.
 
+> **dev/prod 스키마 관리 분리에 대한 주의점**: dev는 H2 `create-drop`으로 매 실행마다 엔티티 기반으로 스키마를 재생성하고, prod는 Flyway SQL 마이그레이션으로 스키마를 관리한다. 두 경로가 다르므로, 새 마이그레이션 추가 시 (1) Flyway SQL이 PostgreSQL 문법에 맞는지, (2) 엔티티 변경과 마이그레이션 SQL이 동일한 스키마를 만드는지 반드시 확인해야 한다. prod의 `ddl-auto: validate`가 불일치 시 기동 실패로 이를 안전장치로 보완한다.
+
 ### Synchronous REST
 MVP uses synchronous POST. Response time target: <30s.
 
@@ -379,6 +381,8 @@ PENDING 상태가 이미 DB에 저장되므로 비동기 전환 시 클라이언
 | 변경 범위 | `useAnalysis.ts` → `analysisStore.ts`, `useToast.ts` → `toastStore.ts` 전환. 컴포넌트 import 경로 수정 |
 
 현재 구조는 `useAnalysis()`를 `App.vue` 한 곳에서만 호출하고 props/emit으로 하위 전달하는 단방향 흐름이라 Pinia 없이도 상태 추적이 가능하다. `useToast()`만 모듈 싱글턴으로 전역 공유된다. 화면이 단일 페이지 분석 뷰 하나인 MVP 범위에서는 이 구조로 충분하지만, 라우트가 추가되거나 여러 컴포넌트가 독립적으로 상태를 구독해야 할 경우 Pinia 도입이 유지보수성을 높인다.
+
+> **두 composable의 상태 소유 패턴이 다른 이유**: `useAnalysis()`는 호출할 때마다 새 `ref`를 생성한다 — `App.vue` 한 곳에서만 호출하여 단일 소유자가 상태를 props/emit으로 내려주는 구조이므로, 여러 곳에서 호출하면 상태가 분리되어 동기화 문제가 생긴다. 반면 `useToast()`는 모듈 레벨에서 `ref`를 선언하여 어디서 호출하든 동일한 토스트 큐를 공유한다 — 에러 핸들러, API 계층, 컴포넌트 등 다양한 위치에서 독립적으로 토스트를 발생시켜야 하기 때문이다. 새 composable 추가 시 "상태 소유자가 하나인가, 여러 곳에서 공유해야 하는가"로 패턴을 선택하면 된다.
 
 ### AI 제공자 교체
 
