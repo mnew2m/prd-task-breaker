@@ -46,7 +46,7 @@
 10. 피드백 useful=true/false → 200, DB 저장 확인
 11. 완료되지 않은 분석(PENDING/FAILED)에 피드백 → 500
 12. useful 필드 누락된 피드백 요청 → 400
-13. `createdAt` ISO 문자열 직렬화 확인 (배열 형식 아님)
+13. `createdAt` ISO UTC 문자열 직렬화 확인 (`Z` 접미사 포함, 배열 형식 아님)
 14. `limit` 파라미터 범위 검증 (0, -1, 200 → 400)
 15. AiResponseMapper 엔티티 메타데이터(id, createdAt, useful) 매핑 정확성
 16. CORS preflight PATCH 요청 → Access-Control-Allow-Methods에 PATCH 포함
@@ -70,7 +70,7 @@
 - `PdfExportButton.test.ts`: 모달 열기/닫기(닫기·취소·오버레이), 섹션 필터링, 전체 해제 시 버튼 비활성화, generatePdf 호출, 생성 중 닫기 방지(닫기·취소·오버레이 모두 차단)
 - `App.test.ts`: 마운트 시 result 없이 입력 화면 표시(AnalysisResult 미렌더링), scroll-to-top 버튼 표시/숨김/클릭, `feedback-submitted` 수신 시 `result.value.useful` in-place 업데이트 및 `loadRecent()` 호출 검증
 - `SectionReorderModal.test.ts`: 드래그 순서 변경, 터치 드래그, 취소 시 초기화
-- `AnalysisHistory.test.ts`: 히스토리 목록 렌더링, 접기/펼치기, 카드 클릭 emit, 최근 3개 제한, `useful=true/false` 피드백 아이콘 표시, `useful=null/undefined` 아이콘 숨김, Enter/Space 키보드 네비게이션
+- `AnalysisHistory.test.ts`: 히스토리 목록 렌더링, 접기/펼치기, 카드 클릭 emit, 최근 3개 제한, ISO UTC 문자열 날짜 파싱 및 포맷 검증, `useful=true/false` 피드백 아이콘 표시, `useful=null/undefined` 아이콘 숨김, Enter/Space 키보드 네비게이션
 - `ConfirmDialog.test.ts`: 열림/닫힘 렌더링, 확인/취소 emit, ESC 키 닫기, 포커스 트랩
 - `LoadingState.test.ts`: 로딩 메시지 렌더링, role/aria-live 속성, 취소 버튼 렌더링, 취소→확인 다이얼로그 표시/숨김, 확인 시 cancel emit, load 모드 메시지 분기, load 모드 힌트/취소 버튼 숨김
 - `ErrorState.test.ts`: 에러 메시지 렌더링(role="alert"), hint 조건부 표시, retry emit

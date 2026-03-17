@@ -125,11 +125,12 @@ describe('AnalysisHistory', () => {
     expect(wrapper.find('.card-date').text()).toBe('not-a-date')
   })
 
-  it('parses array-form createdAt (Jackson timestamp array) correctly', async () => {
-    const item = { ...makeItem(1), createdAt: [2026, 3, 13, 8, 6] as unknown as string }
+  it('parses ISO UTC string createdAt correctly', async () => {
+    const item = { ...makeItem(1), createdAt: '2026-03-13T08:06:00Z' }
     const wrapper = mount(AnalysisHistory, { props: { recentList: [item] } })
     await openPanel(wrapper)
-    expect(wrapper.find('.card-date').text()).toBe('2026-03-13 08:06')
+    // UTC 기준 파싱 후 브라우저 로컬 시간으로 표시 — 형식만 확인
+    expect(wrapper.find('.card-date').text()).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)
   })
 
   // ── feedback icon ─────────────────────────────────────────────────────────

@@ -46,7 +46,8 @@
 | 2026-03-15 | 성능 테스트, 반응형, 피드백 반영, 테스트/CI 자동화 강화 | `815220a`, `cda57cf`, `b4ce15c`, `58114a1`, `e728d46`, `1eb2edb`, `1058e8e`, `f1f6860` |
 | 2026-03-15 | 테스트 문서 보완 (백엔드 커버리지 수치·통합테스트·E2E 잔여 리스크) | `49715db` |
 | 2026-03-15 | CI performance 잡 MockAiClient 한계 명시 (test-plan + deploy) | `0d19dcd`, `d32cbca` |
-| 2026-03-17 | 타임스탬프 UTC 저장 + 프론트엔드 로컬 변환 (`LocalDateTime` → `Instant`, Flyway V3, api-spec `Z` 접미사) | — |
+| 2026-03-17 | 타임스탬프 UTC 저장 + 프론트엔드 로컬 변환 (`LocalDateTime` → `Instant`, Flyway V3, api-spec `Z` 접미사) | `5255c00` |
+| 2026-03-17 | AnalysisHistory.test.ts 배열 형식 케이스 → ISO UTC 문자열 포맷 검증으로 교체, test-plan.md 반영 | — |
 
 ## 2026-03-13 - Phase 1: Architecture & Structure
 
