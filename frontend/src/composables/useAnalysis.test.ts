@@ -19,10 +19,10 @@ const mockResponse = {
   releaseChecklist: [],
   uncertainItems: [],
   readmeDraft: null,
-  createdAt: '2026-03-13T00:00:00'
+  createdAt: '2026-03-13T00:00:00Z'
 }
 
-const mockResponse2 = { ...mockResponse, id: 2, createdAt: '2026-03-13T01:00:00' }
+const mockResponse2 = { ...mockResponse, id: 2, createdAt: '2026-03-13T01:00:00Z' }
 
 describe('useAnalysis', () => {
   beforeEach(() => {

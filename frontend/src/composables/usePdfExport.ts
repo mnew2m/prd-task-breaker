@@ -128,11 +128,7 @@ export function usePdfExport() {
       doc.setTextColor(100, 100, 120)
       doc.text(`ID: ${result.id}`, margin, y)
       y += 6
-      const rawCreatedAt = result.createdAt
-      const createdAtDate = Array.isArray(rawCreatedAt)
-        ? new Date(rawCreatedAt[0], rawCreatedAt[1] - 1, rawCreatedAt[2], rawCreatedAt[3] ?? 0, rawCreatedAt[4] ?? 0)
-        : new Date(rawCreatedAt)
-      const createdAt = createdAtDate.toLocaleString('ko-KR')
+      const createdAt = new Date(result.createdAt).toLocaleString('ko-KR')
       doc.text(`생성일시: ${createdAt}`, margin, y)
       y += 12
 

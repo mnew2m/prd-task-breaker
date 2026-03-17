@@ -14,7 +14,7 @@
   "status": 400,
   "error": "Bad Request",
   "message": "오류 설명",
-  "timestamp": "2026-03-15T10:00:00"
+  "timestamp": "2026-03-15T10:00:00Z"
 }
 ```
 
@@ -69,19 +69,19 @@ PRD 분석 요청
   ],
   "uncertainItems": ["string"],
   "readmeDraft": "string|null",
-  "createdAt": "2026-03-15T10:00:00",
+  "createdAt": "2026-03-15T10:00:00Z",
   "useful": null
 }
 ```
 
 **Response 400:**
 ```json
-{ "status": 400, "error": "Bad Request", "message": "PRD content must not be blank", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 400, "error": "Bad Request", "message": "PRD content must not be blank", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 **Response 500:**
 ```json
-{ "status": 500, "error": "Internal Server Error", "message": "AI processing failed", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 500, "error": "Internal Server Error", "message": "AI processing failed", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 ---
@@ -105,19 +105,19 @@ PRD 분석 요청
   "releaseChecklist": [...],
   "uncertainItems": [...],
   "readmeDraft": "string|null",
-  "createdAt": "2026-03-15T10:00:00",
+  "createdAt": "2026-03-15T10:00:00Z",
   "useful": true
 }
 ```
 
 **Response 404:**
 ```json
-{ "status": 404, "error": "Not Found", "message": "Analysis not found with id: 999", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 404, "error": "Not Found", "message": "Analysis not found with id: 999", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 **Response 500** (COMPLETED 아닌 상태 조회 시):
 ```json
-{ "status": 500, "error": "Internal Server Error", "message": "Analysis is not completed. Status: PENDING", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 500, "error": "Internal Server Error", "message": "Analysis is not completed. Status: PENDING", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 ---
@@ -145,12 +145,12 @@ PRD 분석 요청
     "releaseChecklist": [...],
     "uncertainItems": [...],
     "readmeDraft": "string|null",
-    "createdAt": "2026-03-15T10:01:00",
+    "createdAt": "2026-03-15T10:01:00Z",
     "useful": null
   },
   {
     "id": 1,
-    "createdAt": "2026-03-15T10:00:00",
+    "createdAt": "2026-03-15T10:00:00Z",
     "useful": true,
     ...
   }
@@ -161,7 +161,7 @@ PRD 분석 요청
 
 **Response 400** (`limit` 범위 초과 시):
 ```json
-{ "status": 400, "error": "Bad Request", "message": "getRecent.limit: must be less than or equal to 100", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 400, "error": "Bad Request", "message": "getRecent.limit: must be less than or equal to 100", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 ---
@@ -189,24 +189,24 @@ PRD 분석 요청
   "id": 1,
   "features": [...],
   "useful": true,
-  "createdAt": "2026-03-15T10:00:00",
+  "createdAt": "2026-03-15T10:00:00Z",
   ...
 }
 ```
 
 **Response 400** (`useful` 필드 누락 시):
 ```json
-{ "status": 400, "error": "Bad Request", "message": "useful: must not be null", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 400, "error": "Bad Request", "message": "useful: must not be null", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 **Response 404:**
 ```json
-{ "status": 404, "error": "Not Found", "message": "Analysis not found with id: 999", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 404, "error": "Not Found", "message": "Analysis not found with id: 999", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 **Response 500** (COMPLETED 아닌 상태에 피드백 시):
 ```json
-{ "status": 500, "error": "Internal Server Error", "message": "Analysis is not completed. Status: PENDING", "timestamp": "2026-03-15T10:00:00" }
+{ "status": 500, "error": "Internal Server Error", "message": "Analysis is not completed. Status: PENDING", "timestamp": "2026-03-15T10:00:00Z" }
 ```
 
 ---

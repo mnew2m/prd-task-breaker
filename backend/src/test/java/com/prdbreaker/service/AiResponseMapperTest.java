@@ -7,7 +7,7 @@ import com.prdbreaker.domain.PrdAnalysis;
 import com.prdbreaker.dto.response.PrdAnalysisResponse;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -109,7 +109,7 @@ class AiResponseMapperTest {
 
     @Test
     void toResponse_entityMetadata_mappedCorrectly() {
-        LocalDateTime fixedTime = LocalDateTime.of(2026, 3, 15, 10, 0, 0);
+        Instant fixedTime = Instant.parse("2026-03-15T10:00:00Z");
         String json = "{\"features\":[],\"userStories\":[],\"todos\":[],\"apiDrafts\":[],\"dbDrafts\":[],\"testChecklist\":[],\"releaseChecklist\":[],\"uncertainItems\":[]}";
         PrdAnalysis entity = PrdAnalysis.builder()
                 .id(99L)

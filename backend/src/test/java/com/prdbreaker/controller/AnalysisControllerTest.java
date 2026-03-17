@@ -12,7 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +46,7 @@ class AnalysisControllerTest {
                 .testChecklist(Collections.emptyList())
                 .releaseChecklist(Collections.emptyList())
                 .uncertainItems(Collections.emptyList())
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .build();
     }
 
@@ -212,7 +212,7 @@ class AnalysisControllerTest {
                 .testChecklist(Collections.emptyList())
                 .releaseChecklist(Collections.emptyList())
                 .uncertainItems(Collections.emptyList())
-                .createdAt(LocalDateTime.of(2026, 3, 13, 10, 30, 0))
+                .createdAt(Instant.parse("2026-03-13T10:30:00Z"))
                 .build();
         when(analysisService.analyze(anyString())).thenReturn(response);
 
@@ -221,7 +221,7 @@ class AnalysisControllerTest {
                         .content("{\"prdContent\": \"" + validPrd + "\"}"))
                 .andExpect(status().isOk())
                 // 배열([2026,3,13,...])이 아닌 ISO 문자열 형태여야 함
-                .andExpect(jsonPath("$.createdAt").value("2026-03-13T10:30:00"));
+                .andExpect(jsonPath("$.createdAt").value("2026-03-13T10:30:00Z"));
     }
 
     // ── PATCH /api/v1/analysis/{id}/feedback ─────────────────────────────

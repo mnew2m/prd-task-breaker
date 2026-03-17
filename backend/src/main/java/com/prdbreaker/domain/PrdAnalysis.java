@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "prd_analysis")
@@ -31,28 +31,28 @@ public class PrdAnalysis {
     private AnalysisStatus status;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "completed_at")
-    private LocalDateTime completedAt;
+    private Instant completedAt;
 
     @Column(name = "useful")
     private Boolean useful;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = Instant.now();
     }
 
     public void complete(String resultJson) {
         this.resultJson = resultJson;
         this.status = AnalysisStatus.COMPLETED;
-        this.completedAt = LocalDateTime.now();
+        this.completedAt = Instant.now();
     }
 
     public void fail() {
         this.status = AnalysisStatus.FAILED;
-        this.completedAt = LocalDateTime.now();
+        this.completedAt = Instant.now();
     }
 
     public void markUseful(boolean useful) {
